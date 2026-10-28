@@ -8,6 +8,7 @@ import "./globals.css"
 import { I18nProvider } from "@/lib/i18n-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import { StorageProvider } from "@/lib/storage-context"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const metadata: Metadata = {
   title: "EcoIngenio Global - Plataforma Profesional Ambiental",
@@ -27,7 +28,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <I18nProvider>
             <StorageProvider>
-              <Suspense fallback={null}>{children}</Suspense>
+              <TooltipProvider delayDuration={150}>
+                <Suspense fallback={null}>{children}</Suspense>
+              </TooltipProvider>
               <Analytics />
             </StorageProvider>
           </I18nProvider>

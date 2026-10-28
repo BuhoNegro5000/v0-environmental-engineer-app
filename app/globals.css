@@ -4,76 +4,88 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Environmental theme with professional green/blue palette */
-  --background: oklch(0.98 0.005 180);
-  --foreground: oklch(0.2 0.02 220);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 220);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 220);
-  --primary: oklch(0.55 0.15 180);
-  --primary-foreground: oklch(0.98 0.005 180);
-  --secondary: oklch(0.45 0.12 220);
-  --secondary-foreground: oklch(0.98 0.005 180);
-  --muted: oklch(0.95 0.01 180);
-  --muted-foreground: oklch(0.5 0.02 180);
-  --accent: oklch(0.6 0.18 160);
-  --accent-foreground: oklch(0.98 0.005 180);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0.005 180);
-  --border: oklch(0.88 0.01 180);
-  --input: oklch(0.88 0.01 180);
-  --ring: oklch(0.55 0.15 180);
-  --chart-1: oklch(0.55 0.15 180);
-  --chart-2: oklch(0.45 0.12 220);
-  --chart-3: oklch(0.6 0.18 160);
-  --chart-4: oklch(0.5 0.14 200);
-  --chart-5: oklch(0.65 0.16 140);
+  /* Green Owl Labs — Precision Palette */
+  --background: #F4F8F5;          /* Fondo marfil mineral */
+  --foreground: #253533;          /* Texto principal */
+  --card: #FFFFFF;                /* Superficie blanca */
+  --card-foreground: #253533;     /* Texto de tarjetas */
+  --popover: #FFFFFF;
+  --popover-foreground: #253533;
+  --primary: #008F72;             /* Verde laboratorio */
+  --primary-foreground: #FFFFFF;
+  --secondary: #103B3A;           /* Verde petróleo */
+  --secondary-foreground: #FFFFFF;
+  --muted: #EBF2EE;               /* Superficie neutra suave */
+  --muted-foreground: #647773;     /* Texto secundario */
+  --accent: #BCE8D9;              /* Menta científica */
+  --accent-foreground: #103B3A;
+  --destructive: #C53030;         /* Rojo accesible para errores reales */
+  --destructive-foreground: #FFFFFF;
+  --border: #DCE7E1;              /* Bordes definidos y sutiles */
+  --input: #DCE7E1;
+  --ring: #008F72;
+  --chart-1: #008F72;
+  --chart-2: #103B3A;
+  --chart-3: #2A9D8F;
+  --chart-4: #D99527;             /* Advertencias */
+  --chart-5: #647773;
   --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.005 180);
-  --sidebar-foreground: oklch(0.2 0.02 220);
-  --sidebar-primary: oklch(0.55 0.15 180);
-  --sidebar-primary-foreground: oklch(0.98 0.005 180);
-  --sidebar-accent: oklch(0.95 0.01 180);
-  --sidebar-accent-foreground: oklch(0.2 0.02 220);
-  --sidebar-border: oklch(0.88 0.01 180);
-  --sidebar-ring: oklch(0.55 0.15 180);
+  --sidebar: #F4F8F5;
+  --sidebar-foreground: #253533;
+  --sidebar-primary: #008F72;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EBF2EE;
+  --sidebar-accent-foreground: #253533;
+  --sidebar-border: #DCE7E1;
+  --sidebar-ring: #008F72;
+
+  /* Explicit Brand Tokens */
+  --gol-petroleum: #103B3A;
+  --gol-lab-green: #008F72;
+  --gol-mint: #BCE8D9;
+  --gol-mineral: #F4F8F5;
+  --gol-white: #FFFFFF;
+  --gol-text: #253533;
+  --gol-muted: #647773;
+  --gol-border: #DCE7E1;
+  --gol-warning: #D99527;
+  --gol-error: #C53030;
 }
 
 .dark {
-  /* Dark mode with deep navy inspired by design references */
-  --background: oklch(0.18 0.03 240);
-  --foreground: oklch(0.92 0.01 180);
-  --card: oklch(0.22 0.03 240);
-  --card-foreground: oklch(0.92 0.01 180);
-  --popover: oklch(0.22 0.03 240);
-  --popover-foreground: oklch(0.92 0.01 180);
-  --primary: oklch(0.6 0.15 180);
-  --primary-foreground: oklch(0.18 0.03 240);
-  --secondary: oklch(0.5 0.12 220);
-  --secondary-foreground: oklch(0.92 0.01 180);
-  --muted: oklch(0.28 0.03 240);
-  --muted-foreground: oklch(0.65 0.02 200);
-  --accent: oklch(0.65 0.18 160);
-  --accent-foreground: oklch(0.18 0.03 240);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.92 0.01 180);
-  --border: oklch(0.32 0.03 240);
-  --input: oklch(0.32 0.03 240);
-  --ring: oklch(0.6 0.15 180);
-  --chart-1: oklch(0.6 0.15 180);
-  --chart-2: oklch(0.5 0.12 220);
-  --chart-3: oklch(0.65 0.18 160);
-  --chart-4: oklch(0.55 0.14 200);
-  --chart-5: oklch(0.7 0.16 140);
-  --sidebar: oklch(0.2 0.03 240);
-  --sidebar-foreground: oklch(0.92 0.01 180);
-  --sidebar-primary: oklch(0.6 0.15 180);
-  --sidebar-primary-foreground: oklch(0.18 0.03 240);
-  --sidebar-accent: oklch(0.28 0.03 240);
-  --sidebar-accent-foreground: oklch(0.92 0.01 180);
-  --sidebar-border: oklch(0.32 0.03 240);
-  --sidebar-ring: oklch(0.6 0.15 180);
+  /* Green Owl Labs — High-contrast Dark Theme */
+  --background: #0B1C1B;          /* Petróleo profundo */
+  --foreground: #EAF2EE;          /* Texto claro */
+  --card: #112827;                /* Superficie petróleo oscuro */
+  --card-foreground: #EAF2EE;
+  --popover: #112827;
+  --popover-foreground: #EAF2EE;
+  --primary: #00A887;             /* Verde laboratorio vibrante para contraste */
+  --primary-foreground: #0B1C1B;
+  --secondary: #184240;           /* Verde petróleo medio */
+  --secondary-foreground: #EAF2EE;
+  --muted: #173836;
+  --muted-foreground: #8FA49F;
+  --accent: #1F4C49;
+  --accent-foreground: #BCE8D9;
+  --destructive: #E5484D;
+  --destructive-foreground: #FFFFFF;
+  --border: #1E4644;
+  --input: #1E4644;
+  --ring: #00A887;
+  --chart-1: #00A887;
+  --chart-2: #BCE8D9;
+  --chart-3: #38A3A5;
+  --chart-4: #E9B858;
+  --chart-5: #8FA49F;
+  --sidebar: #0B1C1B;
+  --sidebar-foreground: #EAF2EE;
+  --sidebar-primary: #00A887;
+  --sidebar-primary-foreground: #0B1C1B;
+  --sidebar-accent: #173836;
+  --sidebar-accent-foreground: #EAF2EE;
+  --sidebar-border: #1E4644;
+  --sidebar-ring: #00A887;
 }
 
 @theme inline {
@@ -103,6 +115,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-petroleum: #103B3A;
+  --color-lab-green: #008F72;
+  --color-mint: #BCE8D9;
+  --color-mineral: #F4F8F5;
+  --color-warning: #D99527;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -123,19 +140,19 @@
   }
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden; /* Prevent horizontal overflow on mobile */
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Ensure minimum font size for readability */
+  /* Accessible touch targets & readability */
   input,
   textarea,
   select,
   button {
-    @apply text-base;
-    font-size: max(16px, 1rem); /* Prevents zoom on iOS */
+    font-size: max(16px, 1rem); /* Prevents unwanted zoom on mobile Safari */
   }
 
-  /* Minimum touch target size */
   button,
   a,
   [role="button"],
@@ -144,100 +161,29 @@
     min-width: 44px;
   }
 
-  /* Improved form spacing on mobile */
-  @media (max-width: 640px) {
-    .space-y-4 > * + * {
-      margin-top: 1rem;
-    }
-
-    .space-y-5 > * + * {
-      margin-top: 1.25rem;
-    }
-
-    /* Better padding for mobile cards */
-    .card {
-      @apply rounded-lg;
-    }
-  }
-
-  /* Better touch targets for mobile */
   @media (max-width: 640px) {
     input[type="text"],
     input[type="number"],
     input[type="email"],
     textarea,
     select {
-      min-height: 48px;
+      min-height: 46px;
       padding: 0.75rem 1rem;
       border-radius: 0.5rem;
     }
-
-    button {
-      border-radius: 0.5rem;
-      padding: 0.75rem 1rem;
-    }
   }
 
-  /* Improved contrast for WCAG AA accessibility */
-  .text-muted-foreground {
-    @apply contrast-more:text-foreground/80;
+  /* Safe area padding for mobile navigation */
+  .pb-safe {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+  .bottom-safe {
+    bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  /* Smooth transitions for visual feedback */
-  button,
-  a,
-  [role="button"] {
-    @apply transition-all duration-200;
-  }
-
-  button:hover:not(:disabled),
-  a:hover,
-  [role="button"]:hover {
-    @apply scale-[1.02];
-  }
-
-  button:active:not(:disabled),
-  a:active,
-  [role="button"]:active {
-    @apply scale-[0.98];
-  }
-
-  /* Custom animations for splash screen and onboarding */
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.6s ease-out;
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  /* Ensure proper spacing between elements */
-  .gap-3 {
-    gap: 0.75rem;
-  }
-
-  .gap-4 {
-    gap: 1rem;
+  /* Scientific data monospace formatting */
+  .scientific-num {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-family: var(--font-geist-mono), monospace;
   }
 }

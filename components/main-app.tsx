@@ -6,6 +6,11 @@ import {
   ArrowLeft,
   Layers,
   Star,
+  Settings,
+  Camera,
+  Activity,
+  FileText,
+  Compass,
 } from "lucide-react"
 import { SettingsDialog } from "@/components/settings-dialog"
 import { BottomNavigation, type NavigationDestination } from "@/components/bottom-navigation"
@@ -24,6 +29,10 @@ import { CalculatorModule } from "@/components/calculator-module"
 import { ConverterModule } from "@/components/converter-module"
 import { MeasurementModule } from "@/components/measurement-module"
 import { PracticalToolsModule } from "@/components/practical-tools-module"
+import { FieldCameraModal } from "@/components/field-camera-modal"
+import { QuickNoteModal } from "@/components/quick-note-modal"
+import { QuickInsituModal } from "@/components/quick-insitu-modal"
+import { FieldActionDock } from "@/components/field-action-dock"
 import { useStorage } from "@/lib/storage-context"
 
 export function MainApp() {
@@ -31,6 +40,13 @@ export function MainApp() {
   const [activeDirectModule, setActiveDirectModule] = useState<string | null>(null)
   const [subTab, setSubTab] = useState<string | undefined>(undefined)
   const [toolsSheetOpen, setToolsSheetOpen] = useState(false)
+
+  // Modales de Acción Rápida en Campo
+  const [actionDockOpen, setActionDockOpen] = useState(false)
+  const [cameraModalOpen, setCameraModalOpen] = useState(false)
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false)
+  const [quickInsituOpen, setQuickInsituOpen] = useState(false)
+
   const { favorites, addFavorite, removeFavorite, isFavorite } = useStorage()
 
   const handleNavigate = (module: string, targetSubTab?: string) => {
@@ -77,7 +93,7 @@ export function MainApp() {
       case "charts":
         return "Análisis Gráfico y Tendencias"
       case "notes":
-        return "Bitácora & Notas de Campo"
+        return "Bitácora & Dossier de Campo"
       case "projects":
         return "Gestión de Proyectos"
       case "history":
@@ -101,33 +117,33 @@ export function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F8F5] dark:bg-[#0B1C1B] text-[#253533] dark:text-[#EAF2EE] transition-colors">
-      {/* Top Application Bar */}
-      <header className="sticky top-0 z-30 w-full border-b border-[#DCE7E1] dark:border-[#1E4644] bg-white/95 dark:bg-[#112827]/95 backdrop-blur-md">
-        <div className="container max-w-4xl mx-auto flex h-14 items-center justify-between px-4">
+    <div className="min-h-screen bg-[#070B0A] text-[#EAF2EE] transition-colors selection:bg-[#00FFB2] selection:text-[#070B0A]">
+      {/* Top Application Bar (Cabina Táctica) */}
+      <header className="sticky top-0 z-30 w-full border-b border-[#1B332D] bg-[#0F1A17]/95 backdrop-blur-md">
+        <div className="container max-w-4xl mx-auto flex h-14 items-center justify-between px-3 sm:px-4">
           {activeDirectModule ? (
             /* Contextual Back Navigation Header */
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               <button
                 onClick={() => {
                   setActiveDirectModule(null)
                   setCurrentDestination("home")
                 }}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[#008F72] dark:text-[#00A887] hover:underline p-1.5 -ml-1 rounded-lg"
-                aria-label="Volver al inicio"
+                className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#00FFB2] hover:underline p-1.5 -ml-1 rounded-lg shrink-0"
+                aria-label="Volver al HUD"
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span>Volver</span>
+                <span>HUD</span>
               </button>
-              <div className="h-4 w-[1px] bg-[#DCE7E1] dark:border-[#1E4644] mx-1" />
-              <h2 className="text-xs sm:text-sm font-bold text-[#253533] dark:text-[#EAF2EE] truncate max-w-[200px] sm:max-w-xs">
+              <div className="h-4 w-[1px] bg-[#1B332D] mx-1 shrink-0" />
+              <h2 className="text-xs sm:text-sm font-bold font-mono text-white truncate max-w-[200px] sm:max-w-xs">
                 {getModuleTitle(activeDirectModule)}
               </h2>
             </div>
           ) : (
             /* Standard Brand Identity Header */
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1 border border-[#DCE7E1] dark:border-[#1E4644] shadow-xs">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#070B0A] p-1 border border-[#00FFB2]/40 shadow-xs shadow-[#00FFB2]/20">
                 <Image
                   src="/logo.png"
                   alt="Green Owl Labs"
@@ -139,10 +155,10 @@ export function MainApp() {
                 />
               </div>
               <div>
-                <h1 className="text-sm font-bold leading-none text-[#103B3A] dark:text-[#EAF2EE]">
+                <h1 className="text-sm font-bold leading-none text-white tracking-wide">
                   Laboratorio Ambiental
                 </h1>
-                <p className="text-[10px] font-mono tracking-widest text-[#008F72] dark:text-[#BCE8D9] uppercase leading-tight mt-0.5">
+                <p className="text-[10px] font-mono tracking-widest text-[#00FFB2] uppercase leading-tight mt-0.5">
                   by GREEN OWL LABS
                 </p>
               </div>
@@ -150,18 +166,28 @@ export function MainApp() {
           )}
 
           <div className="flex items-center gap-1">
+            {/* Acceso rápido a cámara desde el header */}
+            <button
+              onClick={() => setCameraModalOpen(true)}
+              className="p-2 rounded-xl text-[#00FFB2] hover:bg-[#142622] transition-colors border border-transparent hover:border-[#00FFB2]/30"
+              title="Cámara con Sello Técnico"
+              aria-label="Abrir cámara técnica"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+
             {activeDirectModule && (
               <button
                 onClick={toggleCurrentFavorite}
-                className="p-2 rounded-xl text-[#647773] dark:text-[#8FA49F] hover:bg-[#EBF2EE] dark:hover:bg-[#173836] transition-colors"
+                className="p-2 rounded-xl text-[#A3B8B2] hover:bg-[#142622] transition-colors"
                 title={isFavorite(activeDirectModule) ? "Quitar de favoritos" : "Guardar en favoritos"}
                 aria-label="Favorito"
               >
                 <Star
                   className={`h-4 w-4 ${
                     isFavorite(activeDirectModule)
-                      ? "fill-[#D99527] text-[#D99527]"
-                      : "text-[#647773] dark:text-[#8FA49F]"
+                      ? "fill-[#FFB800] text-[#FFB800]"
+                      : "text-[#A3B8B2]"
                   }`}
                 />
               </button>
@@ -169,7 +195,7 @@ export function MainApp() {
 
             <button
               onClick={() => setToolsSheetOpen(true)}
-              className="p-2 rounded-xl text-[#647773] dark:text-[#8FA49F] hover:bg-[#EBF2EE] dark:hover:bg-[#173836] transition-colors"
+              className="p-2 rounded-xl text-[#A3B8B2] hover:bg-[#142622] hover:text-[#00FFB2] transition-colors"
               title="Catálogo de herramientas"
               aria-label="Catálogo de herramientas"
             >
@@ -181,8 +207,8 @@ export function MainApp() {
       </header>
 
       {/* Main Workspace Body */}
-      <main className="container max-w-4xl mx-auto px-4 py-5">
-        {/* If user navigated directly into any of the 12 modules */}
+      <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4">
+        {/* If user navigated directly into any of the modules */}
         {activeDirectModule ? (
           <div className="pb-28">
             {activeDirectModule === "calculator" && <CalculatorModule />}
@@ -205,6 +231,9 @@ export function MainApp() {
               <HomeScreen
                 onNavigate={handleNavigate}
                 onOpenToolsCatalog={() => setToolsSheetOpen(true)}
+                onOpenPhotoCamera={() => setCameraModalOpen(true)}
+                onOpenQuickNote={() => setQuickNoteOpen(true)}
+                onOpenQuickInsitu={() => setQuickInsituOpen(true)}
               />
             )}
 
@@ -216,12 +245,43 @@ export function MainApp() {
               <RegulationsView />
             )}
 
+            {currentDestination === "dossier" && (
+              <NotesModule />
+            )}
+
             {currentDestination === "profile" && (
               <ProfileModule />
             )}
           </div>
         )}
       </main>
+
+      {/* Modales Tácticos de Operaciones en Campo */}
+      <FieldCameraModal
+        isOpen={cameraModalOpen}
+        onClose={() => setCameraModalOpen(false)}
+      />
+
+      <QuickNoteModal
+        isOpen={quickNoteOpen}
+        onClose={() => setQuickNoteOpen(false)}
+      />
+
+      <QuickInsituModal
+        isOpen={quickInsituOpen}
+        onClose={() => setQuickInsituOpen(false)}
+      />
+
+      <FieldActionDock
+        isOpen={actionDockOpen}
+        onClose={() => setActionDockOpen(false)}
+        onOpenPhotoCamera={() => setCameraModalOpen(true)}
+        onOpenQuickNote={() => setQuickNoteOpen(true)}
+        onOpenQuickInsitu={() => setQuickInsituOpen(true)}
+        onOpenCalculators={() => {
+          handleSelectDestination("lab")
+        }}
+      />
 
       {/* Categorized Tools Bottom Sheet (Drawer A to K) */}
       <ToolsBottomSheet
@@ -234,7 +294,7 @@ export function MainApp() {
       <BottomNavigation
         currentDestination={currentDestination}
         onSelectDestination={handleSelectDestination}
-        onOpenToolsSheet={() => setToolsSheetOpen(true)}
+        onOpenActionDock={() => setActionDockOpen(true)}
       />
     </div>
   )

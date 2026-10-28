@@ -1,491 +1,460 @@
 "use client"
 
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
-  Calculator,
-  Search,
-  Droplet,
-  Flame,
-  Wind,
-  Layers,
-  Sparkles,
-  ArrowRight,
-  Star,
-  History,
-  ShieldCheck,
-  Clock,
-  Compass,
-  CheckCircle2,
-  BookmarkCheck,
-  Brain,
-  BarChart3,
+  Camera,
   FileText,
-  CalendarDays,
+  Activity,
+  Calculator,
+  Compass,
+  MapPin,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Sparkles,
+  Layers,
+  Droplet,
+  Wind,
+  Flame,
   Gauge,
   Beaker,
   Wrench,
-  BookText,
+  ShieldCheck,
+  Download,
+  Clock,
+  History,
+  Star,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { formatDms, latLngToUtm, type GeoLocationState } from "@/lib/geo-utils"
 import { useStorage } from "@/lib/storage-context"
 
 interface HomeScreenProps {
   onNavigate: (module: string, subTab?: string) => void
   onOpenToolsCatalog: () => void
+  onOpenPhotoCamera?: () => void
+  onOpenQuickNote?: () => void
+  onOpenQuickInsitu?: () => void
 }
 
-export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) {
-  const { history, favorites, getRecentCalculations } = useStorage()
+export function HomeScreen({
+  onNavigate,
+  onOpenToolsCatalog,
+  onOpenPhotoCamera,
+  onOpenQuickNote,
+  onOpenQuickInsitu,
+}: HomeScreenProps) {
+  const { history, favorites } = useStorage()
 
-  const recentCalcs = getRecentCalculations(undefined, 3)
+  // Estación de monitoreo activa
+  const [activeStation, setActiveStation] = useState<string>("Estación E-01 (Descarga PTAR)")
+  const [isEditingStation, setIsEditingStation] = useState(false)
+  const [stationInput, setStationInput] = useState(activeStation)
 
-  const primaryTools = [
+  // Fotos y notas recientes guardadas en localStorage
+  const [recentPhotos, setRecentPhotos] = useState<any[]>([])
+  const [recentNotes, setRecentNotes] = useState<any[]>([])
+
+  // Telemetría GPS en tiempo real
+  const [geo, setGeo] = useState<GeoLocationState>({
+    latitude: -12.046374,
+    longitude: -77.042793,
+    altitude: 154,
+    accuracy: 4.2,
+    heading: null,
+    speed: null,
+    timestamp: Date.now(),
+    utmZone: "18S",
+    utmEasting: 277618,
+    utmNorthing: 8667491,
+  })
+  const [gpsLocked, setGpsLocked] = useState(false)
+
+  // Cargar estado inicial y GPS
+  useEffect(() => {
+    // Cargar estación guardada
+    const savedStation = localStorage.getItem("gol_active_station")
+    if (savedStation) {
+      setActiveStation(savedStation)
+      setStationInput(savedStation)
+    }
+
+    // Cargar evidencias locales
+    loadRecentEvidence()
+
+    // Geolocalización
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude
+          const lng = pos.coords.longitude
+          const utm = latLngToUtm(lat, lng)
+          setGeo({
+            latitude: lat,
+            longitude: lng,
+            altitude: pos.coords.altitude ? Math.round(pos.coords.altitude) : 154,
+            accuracy: pos.coords.accuracy ? Number(pos.coords.accuracy.toFixed(1)) : 4.0,
+            heading: pos.coords.heading ? Math.round(pos.coords.heading) : null,
+            speed: pos.coords.speed,
+            timestamp: pos.timestamp,
+            utmZone: utm.zone,
+            utmEasting: utm.easting,
+            utmNorthing: utm.northing,
+          })
+          setGpsLocked(true)
+        },
+        (err) => {
+          console.warn("GPS referencial activado:", err)
+          setGpsLocked(false)
+        },
+        { enableHighAccuracy: true, timeout: 8000 },
+      )
+    }
+  }, [])
+
+  const loadRecentEvidence = () => {
+    try {
+      const photos = localStorage.getItem("gol_field_photos")
+      if (photos) setRecentPhotos(JSON.parse(photos).slice(0, 4))
+      const notes = localStorage.getItem("gol_notes")
+      if (notes) setRecentNotes(JSON.parse(notes).slice(0, 3))
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const saveStation = (newStation: string) => {
+    setActiveStation(newStation)
+    localStorage.setItem("gol_active_station", newStation)
+    setIsEditingStation(false)
+  }
+
+  // 4 Consolas Científicas Principales
+  const scientificConsoles = [
     {
-      id: "dbo5",
-      name: "DBO₅",
-      fullName: "Demanda Bioquímica de Oxígeno",
-      norm: "SM 5210 B",
-      module: "calculator",
-      subTab: "dbo",
+      id: "water",
+      title: "AGUA & EFLUENTES",
+      tag: "Norma D.S. 004-MINAM",
+      desc: "DBO₅ dilución, DQO por titulación, ICA-NSF, PTAR (TRH & lodos)",
       icon: Droplet,
-      color: "text-[#008F72]",
-      bg: "bg-[#008F72]/10",
+      color: "border-[#00FFB2] text-[#00FFB2]",
+      badge: "4 Ensayos",
+      onClick: () => onNavigate("calculator", "dbo"),
     },
     {
-      id: "dqo",
-      name: "DQO",
-      fullName: "Demanda Química de Oxígeno",
-      norm: "SM 5220 C/D",
-      module: "calculator",
-      subTab: "dqo",
-      icon: Flame,
-      color: "text-[#D99527]",
-      bg: "bg-[#D99527]/10",
-    },
-    {
-      id: "ica",
-      name: "Índice ICA",
-      fullName: "Calidad de Agua Superficial",
-      norm: "R.J. 056-2018-ANA",
-      module: "calculator",
-      subTab: "wqi",
-      icon: CheckCircle2,
-      color: "text-blue-600",
-      bg: "bg-blue-500/10",
-    },
-    {
-      id: "gas_converter",
-      name: "Gases T y P",
-      fullName: "ppm / mg/m³ a T y P Reales",
-      norm: "PV = nRT",
-      module: "converter",
-      subTab: "gases",
+      id: "air",
+      title: "AIRE & EMISIONES",
+      tag: "Ley de Gases Ideales",
+      desc: "Conversión ppm a mg/m³ T/P reales, dispersión Gaussiana de pluma",
       icon: Wind,
-      color: "text-cyan-600",
-      bg: "bg-cyan-500/10",
-    },
-    {
-      id: "reactors",
-      name: "Reactores PTAR",
-      fullName: "Dimensionamiento TRH & Carga",
-      norm: "Metcalf & Eddy",
-      module: "measurement",
-      subTab: "reactors",
-      icon: Beaker,
-      color: "text-emerald-700",
-      bg: "bg-emerald-700/10",
-    },
-    {
-      id: "carbon",
-      name: "Huella Carbono",
-      fullName: "Alcances 1, 2 y 3 (SEIN)",
-      norm: "GHG Protocol",
-      module: "advanced",
-      subTab: "carbon",
-      icon: Sparkles,
-      color: "text-purple-600",
-      bg: "bg-purple-500/10",
+      color: "border-[#00E5FF] text-[#00E5FF]",
+      badge: "Termodinámica",
+      onClick: () => onNavigate("converter"),
     },
     {
       id: "soil",
-      name: "Biopilas Suelos",
-      fullName: "Biorremediación C:N:P & AACE",
-      norm: "EPA 542 / AACE",
-      module: "advanced",
-      subTab: "soil",
-      icon: Layers,
-      color: "text-amber-700",
-      bg: "bg-amber-700/10",
-    },
-    {
-      id: "flow",
-      name: "Aforo Caudales",
-      fullName: "Vertederos & Manning",
-      norm: "USBR / Manning",
-      module: "tools",
-      subTab: "flow",
-      icon: Wrench,
-      color: "text-teal-600",
-      bg: "bg-teal-500/10",
-    },
-  ]
-
-  const allTwelveModules = [
-    {
-      id: "calculator",
-      title: "Calculadoras Científicas",
-      desc: "DBO₅, DQO, Índice ICA-NSF, Emisiones CO₂",
-      icon: Calculator,
-      tag: "4 Ensayos",
-      color: "border-l-[#008F72]",
-    },
-    {
-      id: "converter",
-      title: "Conversor Instrumental",
-      desc: "Gases a T/P reales, Turbidez óptica, Conductividad/TDS",
-      icon: Gauge,
-      tag: "Termodinámico",
-      color: "border-l-cyan-600",
-    },
-    {
-      id: "measurement",
-      title: "Reactores PTAR & Calidad de Agua",
-      desc: "Lodos activados, filtros, UASB y mediciones in-situ con ECA",
-      icon: Beaker,
-      tag: "Metcalf & Eddy",
-      color: "border-l-emerald-600",
-    },
-    {
-      id: "advanced",
-      title: "Huellas Ambientales & Remediación",
-      desc: "Huella de carbono (SEIN), huella hídrica (WFN) y biopilas de suelo",
+      title: "SUELOS & REMEDIACIÓN",
+      tag: "Balance C:N:P 100:10:1",
+      desc: "Diseño de biopilas, fertilización urea/TSP, huella de carbono SEIN",
       icon: Sparkles,
-      tag: "GHG & WFN",
-      color: "border-l-purple-600",
+      color: "border-[#FFB800] text-[#FFB800]",
+      badge: "Biopilas",
+      onClick: () => onNavigate("advanced", "remediation"),
     },
     {
-      id: "tools",
-      title: "Herramientas de Campo & Aforos",
-      desc: "Vertederos, pluma gaussiana, test de jarras y desinfección CT",
+      id: "hydraulics",
+      title: "AFOROS & CAMPO",
+      tag: "Standard Methods",
+      desc: "Vertedero Thomson 90°, canales Manning, test de jarras y valor C·t",
       icon: Wrench,
-      tag: "EPA / Aforos",
-      color: "border-l-teal-600",
-    },
-    {
-      id: "ai",
-      title: "Asistente IA Green Owl",
-      desc: "Diagnóstico de efluentes, asesoría de métodos y consultas normativas",
-      icon: Brain,
-      tag: "IA Ambiental",
-      color: "border-l-[#008F72]",
-    },
-    {
-      id: "resources",
-      title: "Compendio Normativo Oficial",
-      desc: "ECA Agua, LMP PTAR, ECA Aire, ECA Suelo y Ruido con citas legales",
-      icon: ShieldCheck,
-      tag: "D.S. MINAM",
-      color: "border-l-[#103B3A]",
-    },
-    {
-      id: "glossary",
-      title: "Glosario Técnico Oficial",
-      desc: "Definiciones oficiales, acrónimos y vocabulario de ingeniería ambiental",
-      icon: BookText,
-      tag: "100+ Términos",
-      color: "border-l-indigo-600",
-    },
-    {
-      id: "charts",
-      title: "Análisis Gráfico y Tendencias",
-      desc: "Gráficos de series de tiempo, percentiles y comparación con límites",
-      icon: BarChart3,
-      tag: "Series Temporales",
-      color: "border-l-blue-600",
-    },
-    {
-      id: "notes",
-      title: "Bitácora & Notas de Campo",
-      desc: "Cuaderno digital para registrar observaciones e inspecciones ambientales",
-      icon: FileText,
-      tag: "Inspecciones",
-      color: "border-l-amber-600",
-    },
-    {
-      id: "projects",
-      title: "Gestión de Proyectos",
-      desc: "Planificación de campañas de monitoreo y cronograma de control",
-      icon: CalendarDays,
-      tag: "Campañas",
-      color: "border-l-emerald-700",
-    },
-    {
-      id: "history",
-      title: "Historial de Cálculos",
-      desc: "Consulta, copia y exportación de todos los cálculos ejecutados localmente",
-      icon: History,
-      tag: "Trazabilidad",
-      color: "border-l-orange-600",
+      color: "border-[#BCE8D9] text-[#BCE8D9]",
+      badge: "Hidráulica",
+      onClick: () => onNavigate("tools"),
     },
   ]
 
   return (
-    <div className="space-y-6 pb-28">
-      {/* Brand Header */}
-      <div className="bg-[#103B3A] text-white -mx-4 -mt-5 p-6 rounded-b-3xl shadow-lg relative overflow-hidden">
-        {/* Subtle background coordinate line */}
-        <div className="absolute right-0 top-0 w-64 h-64 opacity-10 pointer-events-none">
-          <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#BCE8D9]" fill="none">
-            <circle cx="100" cy="100" r="80" strokeWidth="1" strokeDasharray="3 3" />
-            <circle cx="100" cy="100" r="50" strokeWidth="1" />
-            <line x1="20" y1="100" x2="180" y2="100" strokeWidth="0.5" />
-            <line x1="100" y1="20" x2="100" y2="180" strokeWidth="0.5" />
-          </svg>
+    <div className="space-y-4 pb-28 text-white">
+      {/* 1. HUD DE TELEMETRÍA EN VIVO (Cabina Táctica) */}
+      <section className="bg-[#0F1A17] border-2 border-[#1B332D] rounded-2xl p-3.5 shadow-xl relative overflow-hidden">
+        {/* Glow de acento Bio-Neon superior */}
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#00FFB2] to-transparent opacity-80" />
+
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1B332D]">
+          <div className="flex items-center gap-2">
+            <div className={`w-2.5 h-2.5 rounded-full ${gpsLocked ? "bg-[#00FFB2] animate-pulse" : "bg-[#FFB800]"}`} />
+            <span className="font-mono text-xs font-bold tracking-wider text-[#00FFB2]">
+              {gpsLocked ? "TELEMETRÍA // GPS_LOCKED" : "TELEMETRÍA // GPS_ESTIMADO"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#142622] text-[#00E5FF] border border-[#1B332D]">
+              PREC: ±{geo.accuracy ?? 3.8}m
+            </span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#142622] text-[#00FFB2] border border-[#1B332D]">
+              OFFLINE 100%
+            </span>
+          </div>
         </div>
 
-        <div className="relative z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-white p-1.5 shadow-md flex items-center justify-center">
-                <Image
-                  src="/logo.png"
-                  alt="Green Owl Labs"
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                  style={{ width: "auto", height: "auto" }}
+        {/* Coordenadas en Vivo */}
+        <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+          <div className="bg-[#070B0A] p-2 rounded-xl border border-[#1B332D]">
+            <span className="text-[10px] text-[#A3B8B2] block">COORDENADAS WGS84:</span>
+            <span className="text-[#00E5FF] font-bold text-xs truncate block">
+              {formatDms(geo.latitude, geo.longitude)}
+            </span>
+          </div>
+
+          <div className="bg-[#070B0A] p-2 rounded-xl border border-[#1B332D]">
+            <span className="text-[10px] text-[#A3B8B2] block">PROYECCIÓN UTM:</span>
+            <span className="text-[#00FFB2] font-bold text-xs truncate block">
+              {geo.utmZone} {geo.utmEasting}E {geo.utmNorthing}N
+            </span>
+          </div>
+        </div>
+
+        {/* Estación de Monitoreo Activa */}
+        <div className="mt-2.5 pt-2 border-t border-[#1B332D]/80 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            <MapPin className="h-4 w-4 text-[#00FFB2] shrink-0" />
+            {isEditingStation ? (
+              <div className="flex items-center gap-1 flex-1">
+                <input
+                  type="text"
+                  value={stationInput}
+                  onChange={(e) => setStationInput(e.target.value)}
+                  className="bg-[#070B0A] border border-[#00FFB2] rounded px-2 py-0.5 text-xs font-mono text-white flex-1"
+                  autoFocus
                 />
+                <button
+                  onClick={() => saveStation(stationInput)}
+                  className="px-2 py-0.5 rounded bg-[#00FFB2] text-[#070B0A] font-mono text-xs font-bold"
+                >
+                  Fijar
+                </button>
               </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight text-white leading-tight">
-                  Laboratorio Ambiental
-                </h1>
-                <p className="text-[11px] font-mono tracking-widest text-[#BCE8D9] uppercase">
-                  by GREEN OWL LABS
-                </p>
+            ) : (
+              <div className="truncate flex-1">
+                <span className="text-[10px] font-mono text-[#A3B8B2] block leading-none">
+                  PUNTO DE MONITOREO ACTIVO:
+                </span>
+                <span className="font-mono text-xs font-bold text-white truncate block mt-0.5">
+                  {activeStation}
+                </span>
               </div>
-            </div>
-
-            <Badge
-              variant="outline"
-              className="bg-white/10 text-white border-white/20 text-[10px] font-mono py-1 px-2.5 backdrop-blur-sm"
-            >
-              🇵🇪 Perú · MINAM Activo
-            </Badge>
+            )}
           </div>
 
-          <p className="mt-3 text-xs text-white/80 leading-relaxed max-w-sm">
-            Laboratorio ambiental digital para profesionales. Cálculos estequiométricos validados, métodos oficiales y compendio normativo.
-          </p>
-
-          {/* Quick Search Launcher Bar */}
-          <div className="mt-4">
+          {!isEditingStation && (
             <button
-              onClick={onOpenToolsCatalog}
-              className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl bg-white text-[#647773] hover:text-[#253533] shadow-md transition-all text-left text-sm"
-              aria-label="Abrir buscador de herramientas"
+              onClick={() => setIsEditingStation(true)}
+              className="text-[10px] font-mono px-2 py-1 rounded bg-[#142622] hover:bg-[#1B332D] text-[#00FFB2] border border-[#1B332D] shrink-0"
             >
-              <Search className="h-4 w-4 text-[#008F72] shrink-0" />
-              <span className="flex-1 text-xs sm:text-sm text-[#647773] truncate">
-                Buscar cálculo, método o norma (ej. DBO5, ECA, gases)...
-              </span>
-              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-[#EBF2EE] text-[#253533] rounded border border-[#DCE7E1]">
-                Catálogo (20+)
-              </kbd>
+              Cambiar Punto
             </button>
-          </div>
+          )}
         </div>
-      </div>
+      </section>
 
-      {/* Operational Real Metrics Bar */}
-      <div className="grid grid-cols-3 gap-2 px-1">
-        <div className="p-3 rounded-xl bg-white dark:bg-[#112827] border border-[#DCE7E1] dark:border-[#1E4644] text-center shadow-xs">
-          <span className="block text-lg font-bold text-[#008F72] dark:text-[#00A887] font-mono">
-            {history.length}
-          </span>
-          <span className="text-[10px] text-[#647773] dark:text-[#8FA49F] uppercase font-medium tracking-tight">
-            Cálculos Guardados
-          </span>
+      {/* 2. DOCK DE ACCIONES RÁPIDAS DE CAMPO (4 PADS GRANDES DE PULGAR) */}
+      <section className="space-y-1.5">
+        <h3 className="font-mono text-xs font-bold tracking-wider text-[#A3B8B2] uppercase px-1 flex items-center gap-1.5">
+          <Activity className="h-3.5 w-3.5 text-[#00FFB2]" />
+          HERRAMIENTAS DE CAMPO // 1-TAP
+        </h3>
+
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* Pad 1: Cámara Técnica con Watermark */}
+          <button
+            onClick={onOpenPhotoCamera}
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#00FFB2]/50 hover:border-[#00FFB2] shadow-lg shadow-[#00FFB2]/10 transition-all text-left group active:scale-95"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#00FFB2] text-[#070B0A] flex items-center justify-center mb-2 shadow-md shadow-[#00FFB2]/30 group-hover:scale-105 transition-transform">
+              <Camera className="h-5 w-5 stroke-[2.4]" />
+            </div>
+            <span className="font-mono text-xs font-bold text-[#00FFB2] tracking-wider leading-tight">
+              FOTO CON SELLO
+            </span>
+            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+              Estampado GPS & fecha
+            </span>
+          </button>
+
+          {/* Pad 2: Nota Rápida con Coordenadas */}
+          <button
+            onClick={onOpenQuickNote}
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#00E5FF]/40 hover:border-[#00E5FF] shadow-lg shadow-[#00E5FF]/10 transition-all text-left group active:scale-95"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#00E5FF] text-[#070B0A] flex items-center justify-center mb-2 shadow-md shadow-[#00E5FF]/30 group-hover:scale-105 transition-transform">
+              <FileText className="h-5 w-5 stroke-[2.4]" />
+            </div>
+            <span className="font-mono text-xs font-bold text-[#00E5FF] tracking-wider leading-tight">
+              NOTA DE CAMPO
+            </span>
+            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+              Dictado por voz & tags
+            </span>
+          </button>
+
+          {/* Pad 3: Test In-Situ vs ECA */}
+          <button
+            onClick={onOpenQuickInsitu}
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#FFB800]/40 hover:border-[#FFB800] shadow-lg shadow-[#FFB800]/10 transition-all text-left group active:scale-95"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#FFB800] text-[#070B0A] flex items-center justify-center mb-2 shadow-md shadow-[#FFB800]/30 group-hover:scale-105 transition-transform">
+              <Activity className="h-5 w-5 stroke-[2.4]" />
+            </div>
+            <span className="font-mono text-xs font-bold text-[#FFB800] tracking-wider leading-tight">
+              TEST IN-SITU
+            </span>
+            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+              pH, OD, CE vs ECA
+            </span>
+          </button>
+
+          {/* Pad 4: Dossier / Bitácora Completa */}
+          <button
+            onClick={() => onNavigate("notes")}
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#1B332D] hover:border-[#00FFB2]/50 transition-all text-left group active:scale-95"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#142622] text-[#00FFB2] border border-[#1B332D] flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+              <CheckCircle2 className="h-5 w-5 stroke-[2.2]" />
+            </div>
+            <span className="font-mono text-xs font-bold text-white tracking-wider leading-tight">
+              DOSSIER & CHECK
+            </span>
+            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+              Bitácora & reportes
+            </span>
+          </button>
         </div>
+      </section>
 
-        <div className="p-3 rounded-xl bg-white dark:bg-[#112827] border border-[#DCE7E1] dark:border-[#1E4644] text-center shadow-xs">
-          <span className="block text-lg font-bold text-[#103B3A] dark:text-[#BCE8D9] font-mono">
-            {favorites.length}
-          </span>
-          <span className="text-[10px] text-[#647773] dark:text-[#8FA49F] uppercase font-medium tracking-tight">
-            Herramientas Favoritas
-          </span>
-        </div>
-
-        <div className="p-3 rounded-xl bg-white dark:bg-[#112827] border border-[#DCE7E1] dark:border-[#1E4644] text-center shadow-xs">
-          <span className="block text-lg font-bold text-[#008F72] font-mono">
-            12 / 12
-          </span>
-          <span className="text-[10px] text-[#647773] dark:text-[#8FA49F] uppercase font-medium tracking-tight">
-            Módulos Integrados
-          </span>
-        </div>
-      </div>
-
-      {/* Acceso Rápido Instrumental (8 Herramientas de Cálculo Frecuente) */}
-      <div className="space-y-3">
+      {/* 3. LAS 4 CONSOLAS CIENTÍFICAS ESPECIALIZADAS */}
+      <section className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider flex items-center gap-1.5">
-            <Compass className="h-4 w-4 text-[#008F72]" />
-            Acceso Rápido Instrumental
-          </h2>
+          <h3 className="font-mono text-xs font-bold tracking-wider text-[#A3B8B2] uppercase flex items-center gap-1.5">
+            <Calculator className="h-3.5 w-3.5 text-[#00FFB2]" />
+            CONSOLAS INSTRUMENTALES // CÁLCULOS
+          </h3>
           <button
             onClick={onOpenToolsCatalog}
-            className="text-xs text-[#008F72] hover:underline font-medium"
+            className="text-[10px] font-mono text-[#00FFB2] hover:underline flex items-center gap-1"
           >
-            Abrir Catálogo Completo →
+            <span>Ver Catálogo</span>
+            <ArrowRight className="h-3 w-3" />
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {primaryTools.map((tool) => {
-            const Icon = tool.icon
+        <div className="grid grid-cols-1 gap-2.5">
+          {scientificConsoles.map((consoleItem) => {
+            const Icon = consoleItem.icon
             return (
               <button
-                key={tool.id}
-                onClick={() => onNavigate(tool.module, tool.subTab)}
-                className="group p-3 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] hover:border-[#008F72] hover:shadow-md transition-all text-left flex flex-col justify-between"
+                key={consoleItem.id}
+                onClick={consoleItem.onClick}
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border border-[#1B332D] hover:border-[#00FFB2]/50 transition-all text-left group"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`w-8 h-8 rounded-lg ${tool.bg} flex items-center justify-center`}>
-                      <Icon className={`h-4 w-4 ${tool.color}`} />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`w-11 h-11 rounded-xl bg-[#070B0A] border flex items-center justify-center shrink-0 ${consoleItem.color}`}
+                  >
+                    <Icon className="h-5 w-5 stroke-[2.2]" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-mono text-xs font-bold text-white tracking-wider">
+                        {consoleItem.title}
+                      </h4>
+                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#142622] text-[#A3B8B2] border border-[#1B332D]">
+                        {consoleItem.badge}
+                      </span>
                     </div>
-                    <span className="text-[9px] font-mono bg-[#EBF2EE] dark:bg-[#173836] text-[#253533] dark:text-[#EAF2EE] px-1.5 py-0.5 rounded">
-                      {tool.norm}
-                    </span>
+                    <p className="text-[11px] font-mono text-[#A3B8B2] truncate mt-0.5">
+                      {consoleItem.desc}
+                    </p>
                   </div>
-                  <h3 className="font-bold text-sm text-[#253533] dark:text-[#EAF2EE] group-hover:text-[#008F72] transition-colors">
-                    {tool.name}
-                  </h3>
-                  <p className="text-[11px] text-[#647773] dark:text-[#8FA49F] line-clamp-1 mt-0.5">
-                    {tool.fullName}
-                  </p>
                 </div>
-                <div className="mt-2.5 pt-2 border-t border-[#DCE7E1]/50 dark:border-[#1E4644]/50 flex items-center justify-between text-[10px] text-[#008F72] font-semibold">
-                  <span>Calcular</span>
-                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                </div>
+
+                <ArrowRight className="h-4 w-4 text-[#A3B8B2] group-hover:text-[#00FFB2] group-hover:translate-x-1 transition-all shrink-0 ml-2" />
               </button>
             )
           })}
         </div>
-      </div>
+      </section>
 
-      {/* Favoritos (si existen) */}
-      {favorites.length > 0 && (
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider flex items-center gap-1.5">
-              <Star className="h-4 w-4 text-[#D99527] fill-[#D99527]" />
-              Tus Herramientas Favoritas
-            </h2>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {favorites.map((fav) => (
-              <button
-                key={fav.id}
-                onClick={() => onNavigate(fav.module)}
-                className="px-3 py-2 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] text-xs font-semibold text-[#253533] dark:text-[#EAF2EE] hover:border-[#008F72] flex items-center gap-2 shrink-0 shadow-xs"
-              >
-                <BookmarkCheck className="h-3.5 w-3.5 text-[#008F72]" />
-                <span>{fav.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Cálculos Recientes */}
-      {recentCalcs.length > 0 && (
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider flex items-center gap-1.5">
-              <History className="h-4 w-4 text-[#647773]" />
-              Últimos Cálculos Realizados
-            </h2>
-            <button
-              onClick={() => onNavigate("history")}
-              className="text-xs text-[#008F72] hover:underline font-medium"
-            >
-              Ver historial completo →
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {recentCalcs.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => onNavigate(item.module)}
-                className="p-3 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] flex items-center justify-between gap-3 text-xs cursor-pointer hover:border-[#008F72] transition-colors"
-              >
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[#253533] dark:text-[#EAF2EE] uppercase">
-                      {item.type}
-                    </span>
-                    <span className="text-[10px] text-[#647773] dark:text-[#8FA49F] flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {new Date(item.timestamp).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <span className="text-[11px] text-[#647773] dark:text-[#8FA49F] font-mono">
-                    Resultado: <strong className="text-[#008F72]">{String(item.result)}</strong>
-                  </span>
-                </div>
-                <ArrowRight className="h-4 w-4 text-[#647773] shrink-0" />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Catálogo Completo: Todos los 12 Módulos Integrados */}
-      <div className="space-y-3">
+      {/* 4. FEED DE EVIDENCIAS RECIENTES DE LA JORNADA */}
+      <section className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider flex items-center gap-1.5">
-            <Layers className="h-4 w-4 text-[#008F72]" />
-            Catálogo Integral de Módulos (12 Herramientas)
-          </h2>
-          <span className="text-xs text-[#647773] dark:text-[#8FA49F]">100% Integradas</span>
+          <h3 className="font-mono text-xs font-bold tracking-wider text-[#A3B8B2] uppercase flex items-center gap-1.5">
+            <History className="h-3.5 w-3.5 text-[#00E5FF]" />
+            EVIDENCIAS REGISTRADAS EN LA JORNADA
+          </h3>
+          <span className="text-[10px] font-mono text-[#A3B8B2]">
+            {recentPhotos.length} fotos • {recentNotes.length} notas
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          {allTwelveModules.map((mod) => {
-            const Icon = mod.icon
-            return (
-              <button
-                key={mod.id}
-                onClick={() => onNavigate(mod.id)}
-                className={`p-3.5 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] hover:shadow-md transition-all text-left flex items-start gap-3 border-l-4 ${mod.color}`}
-              >
-                <div className="w-9 h-9 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] flex items-center justify-center text-[#008F72] shrink-0 mt-0.5">
-                  <Icon className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-1">
-                    <h3 className="font-bold text-xs sm:text-sm text-[#253533] dark:text-[#EAF2EE] truncate">
-                      {mod.title}
-                    </h3>
-                    <Badge variant="secondary" className="text-[9px] font-mono px-1.5 py-0">
-                      {mod.tag}
-                    </Badge>
+        {recentPhotos.length === 0 && recentNotes.length === 0 ? (
+          <div className="bg-[#0F1A17] border border-[#1B332D] rounded-2xl p-6 text-center text-[#A3B8B2] font-mono space-y-2">
+            <Camera className="h-8 w-8 mx-auto text-[#00FFB2]/40" />
+            <p className="text-xs">No hay evidencias registradas en esta jornada.</p>
+            <p className="text-[10px] text-[#647773]">
+              Toca 'FOTO CON SELLO' o 'NOTA DE CAMPO' para iniciar la bitácora técnica.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {/* Galería Rápida de Fotos */}
+            {recentPhotos.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {recentPhotos.slice(0, 2).map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="relative bg-[#070B0A] border border-[#1B332D] rounded-xl overflow-hidden group"
+                  >
+                    <img
+                      src={photo.dataUrl}
+                      alt={photo.station}
+                      className="w-full h-28 object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2 text-[10px] font-mono">
+                      <span className="text-[#00FFB2] font-bold block truncate">{photo.station}</span>
+                      <span className="text-[#A3B8B2] text-[9px] block">
+                        {new Date(photo.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-[11px] text-[#647773] dark:text-[#8FA49F] mt-1 line-clamp-1">
-                    {mod.desc}
-                  </p>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </div>
+                ))}
+              </div>
+            )}
+
+            {/* Lista de Notas Recientes */}
+            {recentNotes.length > 0 && (
+              <div className="space-y-1.5">
+                {recentNotes.slice(0, 2).map((note) => (
+                  <div
+                    key={note.id}
+                    className="bg-[#0F1A17] border border-[#1B332D] rounded-xl p-2.5 text-xs font-mono"
+                  >
+                    <div className="flex items-center justify-between text-[#00E5FF] mb-1">
+                      <span className="font-bold truncate">{note.title}</span>
+                      <span className="text-[9px] text-[#A3B8B2]">
+                        {new Date(note.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#A3B8B2] line-clamp-2 leading-relaxed">
+                      {note.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

@@ -40,7 +40,7 @@ export function MainApp() {
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg overflow-hidden bg-white p-1">
-              <Image src="/logo.png" alt="EcoAI Logo" width={48} height={48} className="object-contain" priority />
+              <Image src="/logo.png" alt="EcoAI Logo" width={48} height={48} className="object-contain" style={{ width: "auto", height: "auto" }} priority />
             </div>
             <div>
               <h1 className="text-lg font-semibold leading-none text-foreground">EcoAI</h1>

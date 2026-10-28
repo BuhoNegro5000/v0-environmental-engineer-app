@@ -18,7 +18,7 @@ export function SplashScreen() {
                   width={120}
                   height={120}
                   className="animate-bounce"
-                  style={{ animationDuration: "2s" }}
+                  style={{ animationDuration: "2s", width: "auto", height: "auto" }}
                   priority
                 />
               </div>

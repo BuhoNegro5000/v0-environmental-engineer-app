@@ -5,6 +5,7 @@ import { useState } from "react"
 import {
   ArrowLeft,
   Layers,
+  Star,
 } from "lucide-react"
 import { SettingsDialog } from "@/components/settings-dialog"
 import { BottomNavigation, type NavigationDestination } from "@/components/bottom-navigation"
@@ -30,23 +31,18 @@ export function MainApp() {
   const [activeDirectModule, setActiveDirectModule] = useState<string | null>(null)
   const [subTab, setSubTab] = useState<string | undefined>(undefined)
   const [toolsSheetOpen, setToolsSheetOpen] = useState(false)
-  const { favorites } = useStorage()
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useStorage()
 
   const handleNavigate = (module: string, targetSubTab?: string) => {
     setSubTab(targetSubTab)
 
-    // Map common navigation targets
-    if (module === "calculator" || module === "converter" || module === "measurement" || module === "tools") {
-      setCurrentDestination("lab")
-      setActiveDirectModule(module)
+    if (module === "profile") {
+      setCurrentDestination("profile")
+      setActiveDirectModule(null)
     } else if (module === "resources" || module === "glossary") {
       setCurrentDestination("regulations")
       setActiveDirectModule(module)
-    } else if (module === "profile") {
-      setCurrentDestination("profile")
-      setActiveDirectModule(null)
     } else {
-      // Direct modules (advanced, ai, notes, charts, history, projects)
       setActiveDirectModule(module)
     }
 
@@ -62,32 +58,45 @@ export function MainApp() {
 
   const getModuleTitle = (mod: string) => {
     switch (mod) {
-      case "advanced":
-        return "Huellas Ambientales & Remediación"
-      case "ai":
-        return "Asistente IA Green Owl"
-      case "notes":
-        return "Bitácora & Notas de Campo"
-      case "charts":
-        return "Análisis Gráfico y Tendencias"
-      case "history":
-        return "Historial de Cálculos"
-      case "projects":
-        return "Gestión de Proyectos Ambientales"
       case "calculator":
         return "Calculadora Científica Ambiental"
       case "converter":
-        return "Conversor Termodinámico de Gases"
+        return "Conversor Instrumental & Gases"
       case "measurement":
-        return "Dimensionamiento de Reactores PTAR"
+        return "Reactores PTAR & Calidad de Agua"
+      case "advanced":
+        return "Huellas Ambientales & Remediación"
       case "tools":
-        return "Herramientas de Campo y Aforo"
+        return "Herramientas de Campo & Aforos"
+      case "ai":
+        return "Asistente IA Green Owl"
       case "resources":
-        return "Compendio Normativo Ambiental"
+        return "Compendio Normativo Oficial"
       case "glossary":
         return "Glosario Técnico Oficial"
+      case "charts":
+        return "Análisis Gráfico y Tendencias"
+      case "notes":
+        return "Bitácora & Notas de Campo"
+      case "projects":
+        return "Gestión de Proyectos"
+      case "history":
+        return "Historial de Cálculos"
       default:
         return "Laboratorio Ambiental"
+    }
+  }
+
+  const toggleCurrentFavorite = () => {
+    if (!activeDirectModule) return
+    if (isFavorite(activeDirectModule)) {
+      removeFavorite(activeDirectModule)
+    } else {
+      addFavorite({
+        id: activeDirectModule,
+        name: getModuleTitle(activeDirectModule),
+        module: activeDirectModule,
+      })
     }
   }
 
@@ -110,7 +119,7 @@ export function MainApp() {
                 <ArrowLeft className="h-4 w-4" />
                 <span>Volver</span>
               </button>
-              <div className="h-4 w-[1px] bg-[#DCE7E1] dark:bg-[#1E4644] mx-1" />
+              <div className="h-4 w-[1px] bg-[#DCE7E1] dark:border-[#1E4644] mx-1" />
               <h2 className="text-xs sm:text-sm font-bold text-[#253533] dark:text-[#EAF2EE] truncate max-w-[200px] sm:max-w-xs">
                 {getModuleTitle(activeDirectModule)}
               </h2>
@@ -140,7 +149,24 @@ export function MainApp() {
             </div>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
+            {activeDirectModule && (
+              <button
+                onClick={toggleCurrentFavorite}
+                className="p-2 rounded-xl text-[#647773] dark:text-[#8FA49F] hover:bg-[#EBF2EE] dark:hover:bg-[#173836] transition-colors"
+                title={isFavorite(activeDirectModule) ? "Quitar de favoritos" : "Guardar en favoritos"}
+                aria-label="Favorito"
+              >
+                <Star
+                  className={`h-4 w-4 ${
+                    isFavorite(activeDirectModule)
+                      ? "fill-[#D99527] text-[#D99527]"
+                      : "text-[#647773] dark:text-[#8FA49F]"
+                  }`}
+                />
+              </button>
+            )}
+
             <button
               onClick={() => setToolsSheetOpen(true)}
               className="p-2 rounded-xl text-[#647773] dark:text-[#8FA49F] hover:bg-[#EBF2EE] dark:hover:bg-[#173836] transition-colors"
@@ -156,24 +182,24 @@ export function MainApp() {
 
       {/* Main Workspace Body */}
       <main className="container max-w-4xl mx-auto px-4 py-5">
-        {/* If user navigated directly into a specific module */}
+        {/* If user navigated directly into any of the 12 modules */}
         {activeDirectModule ? (
-          <div>
-            {activeDirectModule === "advanced" && <AdvancedToolsModule />}
-            {activeDirectModule === "ai" && <AIAssistantModule />}
-            {activeDirectModule === "notes" && <NotesModule />}
-            {activeDirectModule === "charts" && <ChartsPanel />}
-            {activeDirectModule === "history" && <HistoryPanel />}
-            {activeDirectModule === "projects" && <ProjectManagementModule />}
+          <div className="pb-28">
             {activeDirectModule === "calculator" && <CalculatorModule />}
             {activeDirectModule === "converter" && <ConverterModule />}
             {activeDirectModule === "measurement" && <MeasurementModule />}
+            {activeDirectModule === "advanced" && <AdvancedToolsModule />}
             {activeDirectModule === "tools" && <PracticalToolsModule />}
+            {activeDirectModule === "ai" && <AIAssistantModule />}
+            {activeDirectModule === "charts" && <ChartsPanel />}
+            {activeDirectModule === "notes" && <NotesModule />}
+            {activeDirectModule === "projects" && <ProjectManagementModule />}
+            {activeDirectModule === "history" && <HistoryPanel />}
             {activeDirectModule === "resources" && <RegulationsView initialTab="resources" />}
             {activeDirectModule === "glossary" && <RegulationsView initialTab="glossary" />}
           </div>
         ) : (
-          /* Primary 5-destination Router */
+          /* Primary Router Destinations */
           <div>
             {currentDestination === "home" && (
               <HomeScreen

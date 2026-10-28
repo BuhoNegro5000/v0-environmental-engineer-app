@@ -4,10 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Green Owl Labs — Precision Palette */
+  /* Green Owl Labs — Precision Scientific Palette */
   --background: #F4F8F5;          /* Fondo marfil mineral */
-  --foreground: #253533;          /* Texto principal */
-  --card: #FFFFFF;                /* Superficie blanca */
+  --foreground: #253533;          /* Texto grafito oscuro */
+  --card: #FFFFFF;                /* Superficie blanca limpia */
   --card-foreground: #253533;     /* Texto de tarjetas */
   --popover: #FFFFFF;
   --popover-foreground: #253533;
@@ -16,12 +16,12 @@
   --secondary: #103B3A;           /* Verde petróleo */
   --secondary-foreground: #FFFFFF;
   --muted: #EBF2EE;               /* Superficie neutra suave */
-  --muted-foreground: #647773;     /* Texto secundario */
+  --muted-foreground: #647773;     /* Texto secundario y metadatos */
   --accent: #BCE8D9;              /* Menta científica */
   --accent-foreground: #103B3A;
-  --destructive: #C53030;         /* Rojo accesible para errores reales */
+  --destructive: #C53030;         /* Rojo accesible para alertas reales */
   --destructive-foreground: #FFFFFF;
-  --border: #DCE7E1;              /* Bordes definidos y sutiles */
+  --border: #DCE7E1;              /* Bordes sutiles y definidos */
   --input: #DCE7E1;
   --ring: #008F72;
   --chart-1: #008F72;
@@ -60,7 +60,7 @@
   --card-foreground: #EAF2EE;
   --popover: #112827;
   --popover-foreground: #EAF2EE;
-  --primary: #00A887;             /* Verde laboratorio vibrante para contraste */
+  --primary: #00A887;             /* Verde laboratorio vibrante */
   --primary-foreground: #0B1C1B;
   --secondary: #184240;           /* Verde petróleo medio */
   --secondary-foreground: #EAF2EE;
@@ -145,31 +145,22 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Accessible touch targets & readability */
-  input,
-  textarea,
-  select,
-  button {
-    font-size: max(16px, 1rem); /* Prevents unwanted zoom on mobile Safari */
+  /* Form input optimization without distorting buttons or tabs */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="search"],
+  textarea {
+    font-size: 16px; /* Prevents auto-zoom on iOS without forcing 16px on buttons */
   }
 
-  button,
-  a,
-  [role="button"],
-  [role="tab"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  @media (max-width: 640px) {
+  @media (min-width: 640px) {
     input[type="text"],
     input[type="number"],
     input[type="email"],
-    textarea,
-    select {
-      min-height: 46px;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
+    input[type="search"],
+    textarea {
+      font-size: 0.875rem; /* 14px on desktops for higher scientific information density */
     }
   }
 

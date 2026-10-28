@@ -17,6 +17,14 @@ import {
   Compass,
   CheckCircle2,
   BookmarkCheck,
+  Brain,
+  BarChart3,
+  FileText,
+  CalendarDays,
+  Gauge,
+  Beaker,
+  Wrench,
+  BookText,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useStorage } from "@/lib/storage-context"
@@ -31,7 +39,7 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
 
   const recentCalcs = getRecentCalculations(undefined, 3)
 
-  const quickTools = [
+  const primaryTools = [
     {
       id: "dbo5",
       name: "DBO₅",
@@ -83,14 +91,14 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
       norm: "Metcalf & Eddy",
       module: "measurement",
       subTab: "reactors",
-      icon: Layers,
+      icon: Beaker,
       color: "text-emerald-700",
       bg: "bg-emerald-700/10",
     },
     {
       id: "carbon",
       name: "Huella Carbono",
-      fullName: "Alcances 1, 2 y 3 (SEIN Perú)",
+      fullName: "Alcances 1, 2 y 3 (SEIN)",
       norm: "GHG Protocol",
       module: "advanced",
       subTab: "carbon",
@@ -98,48 +106,133 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
       color: "text-purple-600",
       bg: "bg-purple-500/10",
     },
-  ]
-
-  const categories = [
     {
-      title: "Agua y Aguas Residuales",
-      subtitle: "DBO, DQO, LMP D.S. 003, ECA Agua, Reactores, Cloro CT",
-      module: "calculator",
-      icon: Droplet,
-      badge: "6 Métodos",
-      color: "border-l-4 border-l-[#008F72]",
-    },
-    {
-      title: "Calidad del Aire y Emisiones",
-      subtitle: "Gases a T/P reales, dispersión gaussiana, ECA D.S. 003",
-      module: "converter",
-      icon: Wind,
-      badge: "4 Métodos",
-      color: "border-l-4 border-l-cyan-600",
-    },
-    {
-      title: "Suelos y Remediación",
-      subtitle: "Biopilas de hidrocarburos, C:N:P, costos AACE, ECA Suelo",
+      id: "soil",
+      name: "Biopilas Suelos",
+      fullName: "Biorremediación C:N:P & AACE",
+      norm: "EPA 542 / AACE",
       module: "advanced",
       subTab: "soil",
       icon: Layers,
-      badge: "3 Métodos",
-      color: "border-l-4 border-l-[#D99527]",
+      color: "text-amber-700",
+      bg: "bg-amber-700/10",
     },
     {
-      title: "Compendio Normativo y Guías",
-      subtitle: "Decretos Supremos MINAM, ANA, OEFA, EPA y Glosario",
-      module: "resources",
+      id: "flow",
+      name: "Aforo Caudales",
+      fullName: "Vertederos & Manning",
+      norm: "USBR / Manning",
+      module: "tools",
+      subTab: "flow",
+      icon: Wrench,
+      color: "text-teal-600",
+      bg: "bg-teal-500/10",
+    },
+  ]
+
+  const allTwelveModules = [
+    {
+      id: "calculator",
+      title: "Calculadoras Científicas",
+      desc: "DBO₅, DQO, Índice ICA-NSF, Emisiones CO₂",
+      icon: Calculator,
+      tag: "4 Ensayos",
+      color: "border-l-[#008F72]",
+    },
+    {
+      id: "converter",
+      title: "Conversor Instrumental",
+      desc: "Gases a T/P reales, Turbidez óptica, Conductividad/TDS",
+      icon: Gauge,
+      tag: "Termodinámico",
+      color: "border-l-cyan-600",
+    },
+    {
+      id: "measurement",
+      title: "Reactores PTAR & Calidad de Agua",
+      desc: "Lodos activados, filtros, UASB y mediciones in-situ con ECA",
+      icon: Beaker,
+      tag: "Metcalf & Eddy",
+      color: "border-l-emerald-600",
+    },
+    {
+      id: "advanced",
+      title: "Huellas Ambientales & Remediación",
+      desc: "Huella de carbono (SEIN), huella hídrica (WFN) y biopilas de suelo",
+      icon: Sparkles,
+      tag: "GHG & WFN",
+      color: "border-l-purple-600",
+    },
+    {
+      id: "tools",
+      title: "Herramientas de Campo & Aforos",
+      desc: "Vertederos, pluma gaussiana, test de jarras y desinfección CT",
+      icon: Wrench,
+      tag: "EPA / Aforos",
+      color: "border-l-teal-600",
+    },
+    {
+      id: "ai",
+      title: "Asistente IA Green Owl",
+      desc: "Diagnóstico de efluentes, asesoría de métodos y consultas normativas",
+      icon: Brain,
+      tag: "IA Ambiental",
+      color: "border-l-[#008F72]",
+    },
+    {
+      id: "resources",
+      title: "Compendio Normativo Oficial",
+      desc: "ECA Agua, LMP PTAR, ECA Aire, ECA Suelo y Ruido con citas legales",
       icon: ShieldCheck,
-      badge: "Vigente 2026",
-      color: "border-l-4 border-l-[#103B3A]",
+      tag: "D.S. MINAM",
+      color: "border-l-[#103B3A]",
+    },
+    {
+      id: "glossary",
+      title: "Glosario Técnico Oficial",
+      desc: "Definiciones oficiales, acrónimos y vocabulario de ingeniería ambiental",
+      icon: BookText,
+      tag: "100+ Términos",
+      color: "border-l-indigo-600",
+    },
+    {
+      id: "charts",
+      title: "Análisis Gráfico y Tendencias",
+      desc: "Gráficos de series de tiempo, percentiles y comparación con límites",
+      icon: BarChart3,
+      tag: "Series Temporales",
+      color: "border-l-blue-600",
+    },
+    {
+      id: "notes",
+      title: "Bitácora & Notas de Campo",
+      desc: "Cuaderno digital para registrar observaciones e inspecciones ambientales",
+      icon: FileText,
+      tag: "Inspecciones",
+      color: "border-l-amber-600",
+    },
+    {
+      id: "projects",
+      title: "Gestión de Proyectos",
+      desc: "Planificación de campañas de monitoreo y cronograma de control",
+      icon: CalendarDays,
+      tag: "Campañas",
+      color: "border-l-emerald-700",
+    },
+    {
+      id: "history",
+      title: "Historial de Cálculos",
+      desc: "Consulta, copia y exportación de todos los cálculos ejecutados localmente",
+      icon: History,
+      tag: "Trazabilidad",
+      color: "border-l-orange-600",
     },
   ]
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-28">
       {/* Brand Header */}
-      <div className="bg-[#103B3A] text-white -mx-4 -mt-6 p-6 rounded-b-3xl shadow-lg relative overflow-hidden">
+      <div className="bg-[#103B3A] text-white -mx-4 -mt-5 p-6 rounded-b-3xl shadow-lg relative overflow-hidden">
         {/* Subtle background coordinate line */}
         <div className="absolute right-0 top-0 w-64 h-64 opacity-10 pointer-events-none">
           <svg viewBox="0 0 200 200" className="w-full h-full stroke-[#BCE8D9]" fill="none">
@@ -177,12 +270,12 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
               variant="outline"
               className="bg-white/10 text-white border-white/20 text-[10px] font-mono py-1 px-2.5 backdrop-blur-sm"
             >
-              🇵🇪 Perú · MINAM
+              🇵🇪 Perú · MINAM Activo
             </Badge>
           </div>
 
           <p className="mt-3 text-xs text-white/80 leading-relaxed max-w-sm">
-            Laboratorio ambiental digital para profesionales. Cálculos científicos validados, métodos oficiales y normativa técnica.
+            Laboratorio ambiental digital para profesionales. Cálculos estequiométricos validados, métodos oficiales y compendio normativo.
           </p>
 
           {/* Quick Search Launcher Bar */}
@@ -197,7 +290,7 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
                 Buscar cálculo, método o norma (ej. DBO5, ECA, gases)...
               </span>
               <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-[#EBF2EE] text-[#253533] rounded border border-[#DCE7E1]">
-                Catálogo
+                Catálogo (20+)
               </kbd>
             </button>
           </div>
@@ -211,7 +304,7 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
             {history.length}
           </span>
           <span className="text-[10px] text-[#647773] dark:text-[#8FA49F] uppercase font-medium tracking-tight">
-            Cálculos en Memoria
+            Cálculos Guardados
           </span>
         </div>
 
@@ -225,16 +318,16 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
         </div>
 
         <div className="p-3 rounded-xl bg-white dark:bg-[#112827] border border-[#DCE7E1] dark:border-[#1E4644] text-center shadow-xs">
-          <span className="block text-lg font-bold text-[#D99527] font-mono">
-            100%
+          <span className="block text-lg font-bold text-[#008F72] font-mono">
+            12 / 12
           </span>
           <span className="text-[10px] text-[#647773] dark:text-[#8FA49F] uppercase font-medium tracking-tight">
-            Normativa Verificada
+            Módulos Integrados
           </span>
         </div>
       </div>
 
-      {/* Acceso Rápido (Herramientas más utilizadas) */}
+      {/* Acceso Rápido Instrumental (8 Herramientas de Cálculo Frecuente) */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider flex items-center gap-1.5">
@@ -245,18 +338,18 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
             onClick={onOpenToolsCatalog}
             className="text-xs text-[#008F72] hover:underline font-medium"
           >
-            Ver todas (20+) →
+            Abrir Catálogo Completo →
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-          {quickTools.map((tool) => {
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          {primaryTools.map((tool) => {
             const Icon = tool.icon
             return (
               <button
                 key={tool.id}
                 onClick={() => onNavigate(tool.module, tool.subTab)}
-                className="group p-3.5 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] hover:border-[#008F72] hover:shadow-md transition-all text-left flex flex-col justify-between"
+                className="group p-3 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] hover:border-[#008F72] hover:shadow-md transition-all text-left flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -352,35 +445,39 @@ export function HomeScreen({ onNavigate, onOpenToolsCatalog }: HomeScreenProps) 
         </div>
       )}
 
-      {/* Categorías Científicas */}
+      {/* Catálogo Completo: Todos los 12 Módulos Integrados */}
       <div className="space-y-3">
-        <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider px-1">
-          Áreas Científicas del Laboratorio
-        </h2>
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] uppercase tracking-wider flex items-center gap-1.5">
+            <Layers className="h-4 w-4 text-[#008F72]" />
+            Catálogo Integral de Módulos (12 Herramientas)
+          </h2>
+          <span className="text-xs text-[#647773] dark:text-[#8FA49F]">100% Integradas</span>
+        </div>
 
-        <div className="space-y-2.5">
-          {categories.map((cat, idx) => {
-            const Icon = cat.icon
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {allTwelveModules.map((mod) => {
+            const Icon = mod.icon
             return (
               <button
-                key={idx}
-                onClick={() => onNavigate(cat.module, cat.subTab)}
-                className={`w-full p-4 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] hover:shadow-md transition-all text-left flex items-start gap-3.5 ${cat.color}`}
+                key={mod.id}
+                onClick={() => onNavigate(mod.id)}
+                className={`p-3.5 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] hover:shadow-md transition-all text-left flex items-start gap-3 border-l-4 ${mod.color}`}
               >
-                <div className="w-10 h-10 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] flex items-center justify-center text-[#103B3A] dark:text-[#BCE8D9] shrink-0 mt-0.5">
-                  <Icon className="h-5 w-5" />
+                <div className="w-9 h-9 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] flex items-center justify-center text-[#008F72] shrink-0 mt-0.5">
+                  <Icon className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-bold text-sm text-[#253533] dark:text-[#EAF2EE]">
-                      {cat.title}
+                  <div className="flex items-center justify-between gap-1">
+                    <h3 className="font-bold text-xs sm:text-sm text-[#253533] dark:text-[#EAF2EE] truncate">
+                      {mod.title}
                     </h3>
-                    <Badge variant="secondary" className="text-[10px] font-mono">
-                      {cat.badge}
+                    <Badge variant="secondary" className="text-[9px] font-mono px-1.5 py-0">
+                      {mod.tag}
                     </Badge>
                   </div>
-                  <p className="text-xs text-[#647773] dark:text-[#8FA49F] mt-1 line-clamp-1">
-                    {cat.subtitle}
+                  <p className="text-[11px] text-[#647773] dark:text-[#8FA49F] mt-1 line-clamp-1">
+                    {mod.desc}
                   </p>
                 </div>
               </button>

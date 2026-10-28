@@ -13,6 +13,7 @@ import {
   CalendarDays,
   History,
   Layers,
+  FlaskConical,
 } from "lucide-react"
 import { CalculatorModule } from "@/components/calculator-module"
 import { ConverterModule } from "@/components/converter-module"
@@ -38,36 +39,36 @@ export function LaboratoryModule({ initialSubTab }: LaboratoryModuleProps) {
   const tools = [
     {
       id: "calculators",
-      label: "Calculadoras",
-      subLabel: "DBO, DQO, ICA",
+      label: "Ensayos DBO/DQO",
+      subLabel: "SM 5210 B • ICA-NSF",
       icon: Calculator,
       component: <CalculatorModule />,
     },
     {
       id: "converter",
-      label: "Conversor",
-      subLabel: "Gases T/P, Turbidez",
+      label: "Conversor T/P",
+      subLabel: "Gases • Turbidez • CE",
       icon: Gauge,
       component: <ConverterModule />,
     },
     {
       id: "reactors",
       label: "Reactores PTAR",
-      subLabel: "TRH & Carga",
+      subLabel: "TRH • Carga • Lodos",
       icon: Beaker,
       component: <MeasurementModule />,
     },
     {
       id: "advanced",
-      label: "Huellas & Suelos",
-      subLabel: "Carbono, Agua, Biopilas",
+      label: "Suelos & Huellas",
+      subLabel: "Biopilas C:N:P • SEIN",
       icon: Sparkles,
       component: <AdvancedToolsModule />,
     },
     {
       id: "field",
-      label: "Campo & Aforos",
-      subLabel: "Vertederos, Pluma, CT",
+      label: "Aforos & Campo",
+      subLabel: "Thomson • Manning • CT",
       icon: Wrench,
       component: <PracticalToolsModule />,
     },
@@ -80,15 +81,15 @@ export function LaboratoryModule({ initialSubTab }: LaboratoryModuleProps) {
     },
     {
       id: "charts",
-      label: "Gráficos",
-      subLabel: "Tendencias & límites",
+      label: "Gráficos & ECA",
+      subLabel: "Tendencias y límites",
       icon: BarChart3,
       component: <ChartsPanel />,
     },
     {
       id: "notes",
-      label: "Bitácora",
-      subLabel: "Notas de inspección",
+      label: "Dossier & Notas",
+      subLabel: "Bitácora georreferenciada",
       icon: FileText,
       component: <NotesModule />,
     },
@@ -102,7 +103,7 @@ export function LaboratoryModule({ initialSubTab }: LaboratoryModuleProps) {
     {
       id: "history",
       label: "Historial",
-      subLabel: "Memoria local",
+      subLabel: "Memoria técnica local",
       icon: History,
       component: <HistoryPanel />,
     },
@@ -111,29 +112,29 @@ export function LaboratoryModule({ initialSubTab }: LaboratoryModuleProps) {
   const currentTool = tools.find((t) => t.id === activeTab) || tools[0]
 
   return (
-    <div className="space-y-4 pb-28">
-      {/* Laboratory Suite Header & Horizontal Navigation Bar */}
-      <div className="bg-white dark:bg-[#112827] rounded-2xl border border-[#DCE7E1] dark:border-[#1E4644] p-3 shadow-xs">
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#DCE7E1] dark:border-[#1E4644] px-1">
+    <div className="space-y-4 pb-28 text-white">
+      {/* Laboratory Suite Header & Horizontal Navigation Bar (Táctico) */}
+      <div className="bg-[#0F1A17] rounded-2xl border-2 border-[#1B332D] p-3 shadow-xl">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1B332D] px-1">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#008F72]/10 dark:bg-[#008F72]/20 flex items-center justify-center text-[#008F72]">
-              <Layers className="h-4 w-4" />
+            <div className="w-7 h-7 rounded-lg bg-[#00FFB2]/10 border border-[#00FFB2]/30 flex items-center justify-center text-[#00FFB2]">
+              <FlaskConical className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#253533] dark:text-[#EAF2EE] leading-tight">
-                Módulos Científicos del Laboratorio
+              <h2 className="text-xs font-mono font-bold text-white tracking-wider uppercase leading-tight">
+                CONSOLA INSTRUMENTAL // LABORATORIO
               </h2>
-              <p className="text-[11px] text-[#647773] dark:text-[#8FA49F]">
-                Selecciona una herramienta instrumental para comenzar
+              <p className="text-[10px] font-mono text-[#A3B8B2]">
+                Selecciona un módulo de cálculo y evaluación
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#EBF2EE] dark:bg-[#173836] text-[#008F72] font-semibold">
-            10 Herramientas
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#142622] text-[#00FFB2] border border-[#1B332D] font-bold">
+            10 MÓDULOS
           </span>
         </div>
 
-        {/* Scrollable Pill Bar */}
+        {/* Scrollable Pill Bar (Pads Tácticos) */}
         <div className="overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
           <div className="flex gap-2 min-w-max">
             {tools.map((t) => {
@@ -143,18 +144,18 @@ export function LaboratoryModule({ initialSubTab }: LaboratoryModuleProps) {
                 <button
                   key={t.id}
                   onClick={() => setActiveTab(t.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-mono transition-all shrink-0 ${
                     isActive
-                      ? "bg-[#008F72] text-white shadow-sm shadow-[#008F72]/20"
-                      : "bg-[#F4F8F5] dark:bg-[#0B1C1B] text-[#647773] dark:text-[#8FA49F] hover:bg-[#EBF2EE] dark:hover:bg-[#173836] hover:text-[#253533] dark:hover:text-white border border-[#DCE7E1] dark:border-[#1E4644]"
+                      ? "bg-[#00FFB2] text-[#070B0A] font-bold shadow-md shadow-[#00FFB2]/20 border border-[#00FFB2]"
+                      : "bg-[#070B0A] text-[#A3B8B2] hover:bg-[#142622] hover:text-white border border-[#1B332D]"
                   }`}
                 >
-                  <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-[#008F72]"}`} />
+                  <Icon className={`h-4 w-4 ${isActive ? "text-[#070B0A]" : "text-[#00FFB2]"}`} />
                   <div className="text-left">
                     <span className="block leading-none">{t.label}</span>
                     <span
-                      className={`block text-[9px] font-normal leading-tight mt-0.5 ${
-                        isActive ? "text-white/80" : "text-[#647773] dark:text-[#8FA49F]"
+                      className={`block text-[9px] font-mono leading-tight mt-0.5 ${
+                        isActive ? "text-[#070B0A]/80 font-normal" : "text-[#647773]"
                       }`}
                     >
                       {t.subLabel}

@@ -1,8 +1,9 @@
 "use client"
 
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Leaf, Calculator, Globe, Brain, TrendingUp, ArrowRight, Droplets, BarChart3, Microscope } from "lucide-react"
+import { Calculator, Globe, Brain, TrendingUp, ArrowRight, Droplets, Sparkles, ShieldCheck } from "lucide-react"
 
 interface WelcomeScreenProps {
   onContinue: () => void
@@ -10,34 +11,42 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 overflow-y-auto">
-      <Card className="max-w-4xl w-full p-6 md:p-10 space-y-8 animate-fade-in my-8">
+    <div className="min-h-screen bg-[#F4F8F5] dark:bg-[#0B1C1B] flex items-center justify-center p-4 overflow-y-auto">
+      <Card className="max-w-3xl w-full p-6 md:p-10 space-y-8 animate-fade-in my-8 border-[#DCE7E1] dark:border-[#1E4644] bg-white dark:bg-[#112827] shadow-xl">
         {/* Header with Logo */}
-        <div className="text-center space-y-6">
+        <div className="text-center space-y-5">
           <div className="flex justify-center">
-            <div className="bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl p-6 shadow-lg">
-              <img src="/logo.png" alt="EcoAI Logo" className="h-20 w-20 md:h-24 md:w-24 object-contain" />
+            <div className="bg-white rounded-2xl p-4 shadow-md border border-[#DCE7E1] dark:border-[#1E4644]">
+              <Image
+                src="/logo.png"
+                alt="Green Owl Labs"
+                width={80}
+                height={80}
+                className="object-contain"
+                style={{ width: "auto", height: "auto" }}
+                priority
+              />
             </div>
           </div>
 
-          <div className="space-y-3">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Bienvenido a EcoAI
+          <div className="space-y-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#103B3A] dark:text-[#EAF2EE] tracking-tight">
+              Laboratorio Ambiental
             </h1>
-            <p className="text-xl md:text-2xl font-semibold text-primary">Tu Laboratorio Ambiental en el Bolsillo</p>
+            <p className="text-xs font-mono tracking-[0.25em] uppercase text-[#008F72] dark:text-[#BCE8D9] font-bold">
+              by GREEN OWL LABS
+            </p>
+            <p className="text-base md:text-lg font-medium text-[#253533] dark:text-[#EAF2EE] pt-1">
+              Laboratorio ambiental digital para profesionales
+            </p>
+            <p className="text-xs text-[#647773] dark:text-[#8FA49F] italic">
+              «La ciencia ambiental, en tu bolsillo»
+            </p>
           </div>
 
-          {/* Attractive Description */}
-          <div className="max-w-3xl mx-auto space-y-4 text-left md:text-center">
-            <p className="text-base md:text-lg text-foreground leading-relaxed font-medium">
-              La plataforma profesional más completa y avanzada para ingenieros ambientales, científicos y especialistas
-              en medio ambiente.
-            </p>
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              EcoAI integra cálculos científicos validados, normativas internacionales actualizadas, metodologías
-              ambientales reconocidas y herramientas de campo con inteligencia artificial para optimizar tu trabajo
-              profesional. Desde análisis de laboratorio hasta gestión de proyectos ambientales, todo en una sola
-              aplicación de nivel mundial.
+          <div className="max-w-2xl mx-auto space-y-3 text-left md:text-center pt-2">
+            <p className="text-sm md:text-base text-[#253533] dark:text-[#EAF2EE] leading-relaxed">
+              Herramientas científicas, cálculos ambientales estequiométricos, métodos analíticos oficiales, compendio normativo e informes accesibles desde una única aplicación profesional de campo.
             </p>
           </div>
         </div>
@@ -47,106 +56,39 @@ export function WelcomeScreen({ onContinue }: WelcomeScreenProps) {
           <Button
             onClick={onContinue}
             size="lg"
-            className="text-lg md:text-xl px-12 md:px-16 py-7 md:py-8 h-auto group shadow-2xl hover:shadow-3xl transition-all transform hover:scale-105 bg-gradient-to-r from-primary to-secondary"
+            className="text-base md:text-lg px-10 md:px-14 py-6 h-auto bg-[#008F72] hover:bg-[#103B3A] text-white shadow-lg transition-all transform hover:scale-[1.02] font-semibold"
           >
-            Ingresar a la Aplicación
-            <ArrowRight className="ml-3 h-6 w-6 md:h-7 md:w-7 group-hover:translate-x-2 transition-transform" />
+            Ingresar al Laboratorio
+            <ArrowRight className="ml-2.5 h-5 w-5" />
           </Button>
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 transition-all cursor-pointer border border-primary/20">
-            <Calculator className="h-7 w-7 md:h-8 md:w-8 text-primary" />
-            <p className="text-xs md:text-sm font-semibold text-center">Calculadoras Científicas</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-secondary/10 to-secondary/5 hover:from-secondary/20 hover:to-secondary/10 transition-all cursor-pointer border border-secondary/20">
-            <Globe className="h-7 w-7 md:h-8 md:w-8 text-secondary" />
-            <p className="text-xs md:text-sm font-semibold text-center">Normativas 9 Países</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 hover:from-accent/20 hover:to-accent/10 transition-all cursor-pointer border border-accent/20">
-            <Brain className="h-7 w-7 md:h-8 md:w-8 text-accent" />
-            <p className="text-xs md:text-sm font-semibold text-center">Asistente IA GPT-4</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-chart-1/10 to-chart-1/5 hover:from-chart-1/20 hover:to-chart-1/10 transition-all cursor-pointer border border-chart-1/20">
-            <TrendingUp className="h-7 w-7 md:h-8 md:w-8 text-chart-1" />
-            <p className="text-xs md:text-sm font-semibold text-center">Análisis Tiempo Real</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-chart-2/10 to-chart-2/5 hover:from-chart-2/20 hover:to-chart-2/10 transition-all cursor-pointer border border-chart-2/20">
-            <Droplets className="h-7 w-7 md:h-8 md:w-8 text-chart-2" />
-            <p className="text-xs md:text-sm font-semibold text-center">Calidad Agua/Aire</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-chart-3/10 to-chart-3/5 hover:from-chart-3/20 hover:to-chart-3/10 transition-all cursor-pointer border border-chart-3/20">
-            <Leaf className="h-7 w-7 md:h-8 md:w-8 text-chart-3" />
-            <p className="text-xs md:text-sm font-semibold text-center">Herramientas Campo</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-chart-4/10 to-chart-4/5 hover:from-chart-4/20 hover:to-chart-4/10 transition-all cursor-pointer border border-chart-4/20">
-            <Microscope className="h-7 w-7 md:h-8 md:w-8 text-chart-4" />
-            <p className="text-xs md:text-sm font-semibold text-center">Metodologías Validadas</p>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-chart-5/10 to-chart-5/5 hover:from-chart-5/20 hover:to-chart-5/10 transition-all cursor-pointer border border-chart-5/20">
-            <BarChart3 className="h-7 w-7 md:h-8 md:w-8 text-chart-5" />
-            <p className="text-xs md:text-sm font-semibold text-center">Gráficos y Reportes</p>
-          </div>
-        </div>
-
-        {/* Key Benefits */}
-        <div className="space-y-3 text-sm md:text-base">
-          <h3 className="font-bold text-lg text-foreground mb-4">Características Profesionales:</h3>
-          <div className="grid md:grid-cols-2 gap-3">
-            <p className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <span className="text-primary font-bold text-lg flex-shrink-0">✓</span>
-              <span className="text-muted-foreground">
-                <strong className="text-foreground">Cálculos Validados:</strong> DBO, DQO, ICA, huella de carbono,
-                remediación de suelos con fórmulas científicas verificadas
-              </span>
-            </p>
-            <p className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <span className="text-primary font-bold text-lg flex-shrink-0">✓</span>
-              <span className="text-muted-foreground">
-                <strong className="text-foreground">Normativas Actualizadas:</strong> Perú, México, USA, Europa, Brasil,
-                Colombia, Argentina, Ecuador y Chile
-              </span>
-            </p>
-            <p className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <span className="text-primary font-bold text-lg flex-shrink-0">✓</span>
-              <span className="text-muted-foreground">
-                <strong className="text-foreground">IA Especializada:</strong> Asistente con GPT-4o-mini entrenado en
-                ciencias ambientales
-              </span>
-            </p>
-            <p className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <span className="text-primary font-bold text-lg flex-shrink-0">✓</span>
-              <span className="text-muted-foreground">
-                <strong className="text-foreground">Herramientas de Campo:</strong> Geolocalización, fotos
-                georreferenciadas, checklists personalizables
-              </span>
-            </p>
-            <p className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <span className="text-primary font-bold text-lg flex-shrink-0">✓</span>
-              <span className="text-muted-foreground">
-                <strong className="text-foreground">Gestión de Proyectos:</strong> Calendario, cronograma Gantt,
-                seguimiento de actividades
-              </span>
-            </p>
-            <p className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-              <span className="text-primary font-bold text-lg flex-shrink-0">✓</span>
-              <span className="text-muted-foreground">
-                <strong className="text-foreground">Exportación Profesional:</strong> Reportes PDF, CSV, gráficos
-                interactivos, historial completo
-              </span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div className="flex flex-col items-center gap-2 p-3.5 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] border border-[#DCE7E1] dark:border-[#1E4644]">
+            <Calculator className="h-6 w-6 text-[#008F72]" />
+            <p className="text-xs font-semibold text-center text-[#253533] dark:text-[#EAF2EE]">
+              Calculadoras DBO/DQO
             </p>
           </div>
-        </div>
-
-        {/* Professional Badge */}
-        <div className="text-center p-6 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-xl border-2 border-primary/30">
-          <p className="text-sm md:text-base font-semibold text-foreground">
-            🏆 Diseñado por y para profesionales ambientales
-          </p>
-          <p className="text-xs md:text-sm text-muted-foreground mt-2">
-            Metodologías validadas por protocolos internacionales | Cálculos verificados científicamente
-          </p>
+          <div className="flex flex-col items-center gap-2 p-3.5 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] border border-[#DCE7E1] dark:border-[#1E4644]">
+            <ShieldCheck className="h-6 w-6 text-[#103B3A] dark:text-[#BCE8D9]" />
+            <p className="text-xs font-semibold text-center text-[#253533] dark:text-[#EAF2EE]">
+              Normativas MINAM
+            </p>
+          </div>
+          <div className="flex flex-col items-center gap-2 p-3.5 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] border border-[#DCE7E1] dark:border-[#1E4644]">
+            <Brain className="h-6 w-6 text-cyan-600" />
+            <p className="text-xs font-semibold text-center text-[#253533] dark:text-[#EAF2EE]">
+              Asistente IA Ambiental
+            </p>
+          </div>
+          <div className="flex flex-col items-center gap-2 p-3.5 rounded-xl bg-[#F4F8F5] dark:bg-[#0B1C1B] border border-[#DCE7E1] dark:border-[#1E4644]">
+            <Sparkles className="h-6 w-6 text-purple-600" />
+            <p className="text-xs font-semibold text-center text-[#253533] dark:text-[#EAF2EE]">
+              Huellas & Suelos
+            </p>
+          </div>
         </div>
       </Card>
     </div>

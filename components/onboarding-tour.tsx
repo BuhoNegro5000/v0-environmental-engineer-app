@@ -16,35 +16,35 @@ const tourSteps = [
     icon: Calculator,
     title: "Calculadoras Ambientales",
     description:
-      "Accede a calculadoras especializadas para DBO, DQO, ICA, emisiones de CO₂, huella de carbono, huella hídrica y más. Todas con fórmulas validadas internacionalmente.",
+      "Accede a calculadoras especializadas para DBO₅, DQO, ICA-NSF, emisiones de CO₂, huella de carbono, huella hídrica y reactores. Todas validadas con Standard Methods.",
     color: "text-primary",
   },
   {
     icon: Globe,
-    title: "Normativas Internacionales",
+    title: "Compendio Normativo Oficial",
     description:
-      "Consulta límites máximos permisibles y regulaciones de México (NOMs), USA (EPA), Europa (EU), Brasil (CONAMA), Colombia y Argentina. Actualizado constantemente.",
+      "Consulta estándares de calidad ambiental (ECA) y límites máximos permisibles (LMP) de Perú (MINAM, ANA, OEFA), así como normativas de Colombia, Chile, México y USA (EPA).",
     color: "text-secondary",
   },
   {
     icon: FileText,
-    title: "Notas de Campo y Checklists",
+    title: "Notas de Campo y Bitácora",
     description:
-      "Registra observaciones con geolocalización, usa plantillas de inspección predefinidas y exporta reportes profesionales en PDF.",
+      "Registra observaciones in situ, mediciones analíticas y exporta reportes técnicos profesionales.",
     color: "text-accent",
   },
   {
     icon: Brain,
-    title: "Asistente IA - EcoIA",
+    title: "Asistente IA Green Owl",
     description:
-      "Pregunta al asistente de inteligencia artificial sobre normativas, cálculos ambientales, identificación de especies y análisis predictivo de datos.",
+      "Consulta al asistente especializado sobre normativas ambientales, interpretación de efluentes, protocolos de muestreo y cálculos de ingeniería.",
     color: "text-chart-1",
   },
   {
     icon: TrendingUp,
-    title: "Herramientas Avanzadas",
+    title: "Herramientas Avanzadas y Huellas",
     description:
-      "Monitoreo en tiempo real, análisis de impacto ambiental, evaluación de riesgos, remediación de suelos y visualización 3D de datos ambientales.",
+      "Inventario de huella de carbono GHG Protocol, huella hídrica WFN, diseño de biopilas de remediación y aforo de caudales.",
     color: "text-chart-2",
   },
 ]
@@ -71,65 +71,52 @@ export function OnboardingTour({ onComplete, onSkip }: OnboardingTourProps) {
   const Icon = step.icon
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full p-8 space-y-8 animate-fade-in">
-        {/* Progress */}
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="max-w-lg w-full p-6 space-y-6">
+        {/* Progress Bar */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-muted-foreground">
+          <div className="flex justify-between text-xs text-muted-foreground">
             <span>
               Paso {currentStep + 1} de {tourSteps.length}
             </span>
-            <button onClick={onSkip} className="hover:text-foreground transition-colors">
-              Saltar tour
-            </button>
+            <span>{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
 
-        {/* Content */}
-        <div className="text-center space-y-6 py-8">
+        {/* Step Content */}
+        <div className="text-center space-y-4 py-6">
           <div className="flex justify-center">
-            <div className="bg-primary/10 rounded-full p-6">
-              <Icon className={`h-20 w-20 ${step.color}`} />
+            <div className={`p-4 rounded-full bg-primary/10 ${step.color}`}>
+              <Icon className="h-12 w-12" />
             </div>
           </div>
-
-          <div className="space-y-3">
-            <h2 className="text-3xl font-bold text-foreground">{step.title}</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">{step.description}</p>
-          </div>
+          <h2 className="text-2xl font-bold">{step.title}</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
         </div>
 
-        {/* Navigation */}
-        <div className="flex gap-3">
-          {currentStep > 0 && (
-            <Button onClick={handlePrevious} variant="outline" className="flex-1 bg-transparent">
-              Anterior
-            </Button>
-          )}
-          <Button onClick={handleNext} className="flex-1">
-            {currentStep === tourSteps.length - 1 ? (
-              <>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Comenzar a Usar
-              </>
-            ) : (
-              "Siguiente"
-            )}
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between pt-4 border-t">
+          <Button variant="ghost" onClick={onSkip} className="text-muted-foreground">
+            Saltar tutorial
           </Button>
-        </div>
-
-        {/* Dots indicator */}
-        <div className="flex justify-center gap-2">
-          {tourSteps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentStep(index)}
-              className={`h-2 rounded-full transition-all ${
-                index === currentStep ? "w-8 bg-primary" : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
-              }`}
-            />
-          ))}
+          <div className="flex gap-2">
+            {currentStep > 0 && (
+              <Button variant="outline" onClick={handlePrevious}>
+                Anterior
+              </Button>
+            )}
+            <Button onClick={handleNext}>
+              {currentStep < tourSteps.length - 1 ? (
+                "Siguiente"
+              ) : (
+                <>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Comenzar
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

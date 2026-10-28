@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
 type Language = "es" | "en" | "pt"
-type Country = "mexico" | "usa" | "europe" | "brazil" | "colombia" | "argentina" | "peru" | "ecuador" | "chile"
+type Country = "peru" | "mexico" | "usa" | "europe" | "brazil" | "colombia" | "chile"
 
 interface I18nContextType {
   language: Language
@@ -21,36 +21,34 @@ const translations = {
     "nav.calculator": "Calculadora",
     "nav.converter": "Conversor",
     "nav.measurement": "Medición",
-    "nav.resources": "Recursos",
+    "nav.resources": "Normativas",
     "nav.notes": "Notas",
-    "nav.ai": "EcoIA",
+    "nav.ai": "Asistente IA",
     "nav.settings": "Configuración",
 
     // Calculator
-    "calc.title": "Calculadora Ambiental",
-    "calc.dbo": "DBO",
+    "calc.title": "Laboratorio Ambiental",
+    "calc.dbo": "DBO₅",
     "calc.dqo": "DQO",
-    "calc.ica": "ICA",
+    "calc.ica": "ICA-NSF",
     "calc.co2": "CO₂",
     "calc.carbon": "Huella de Carbono",
     "calc.water": "Huella Hídrica",
 
     // Settings
     "settings.language": "Idioma",
-    "settings.country": "País/Región",
+    "settings.country": "País / Normativa Rectora",
     "settings.theme": "Tema",
     "settings.notifications": "Notificaciones",
 
     // Countries
-    "country.mexico": "México",
-    "country.usa": "Estados Unidos",
-    "country.europe": "Europa",
-    "country.brazil": "Brasil",
-    "country.colombia": "Colombia",
-    "country.argentina": "Argentina",
-    "country.peru": "Perú",
-    "country.ecuador": "Ecuador",
-    "country.chile": "Chile",
+    "country.peru": "🇵🇪 Perú (MINAM / ANA / OEFA)",
+    "country.colombia": "🇨🇴 Colombia (MinAmbiente / IDEAM)",
+    "country.chile": "🇨🇱 Chile (MMA / SMA)",
+    "country.mexico": "🇲🇽 México (SEMARNAT / CONAGUA)",
+    "country.usa": "🇺🇸 Estados Unidos (US EPA)",
+    "country.europe": "🇪🇺 Unión Europea (Directivas CE)",
+    "country.brazil": "🇧🇷 Brasil (CONAMA / IBAMA)",
 
     // Common
     "common.calculate": "Calcular",
@@ -65,36 +63,34 @@ const translations = {
     "nav.calculator": "Calculator",
     "nav.converter": "Converter",
     "nav.measurement": "Measurement",
-    "nav.resources": "Resources",
+    "nav.resources": "Regulations",
     "nav.notes": "Notes",
-    "nav.ai": "EcoIA",
+    "nav.ai": "AI Assistant",
     "nav.settings": "Settings",
 
     // Calculator
-    "calc.title": "Environmental Calculator",
-    "calc.dbo": "BOD",
+    "calc.title": "Environmental Laboratory",
+    "calc.dbo": "BOD₅",
     "calc.dqo": "COD",
-    "calc.ica": "WQI",
+    "calc.ica": "WQI-NSF",
     "calc.co2": "CO₂",
     "calc.carbon": "Carbon Footprint",
     "calc.water": "Water Footprint",
 
     // Settings
     "settings.language": "Language",
-    "settings.country": "Country/Region",
+    "settings.country": "Country / Legal Framework",
     "settings.theme": "Theme",
     "settings.notifications": "Notifications",
 
     // Countries
-    "country.mexico": "Mexico",
-    "country.usa": "United States",
-    "country.europe": "Europe",
-    "country.brazil": "Brazil",
-    "country.colombia": "Colombia",
-    "country.argentina": "Argentina",
-    "country.peru": "Peru",
-    "country.ecuador": "Ecuador",
-    "country.chile": "Chile",
+    "country.peru": "🇵🇪 Peru (MINAM / ANA / OEFA)",
+    "country.colombia": "🇨🇴 Colombia (MinAmbiente / IDEAM)",
+    "country.chile": "🇨🇱 Chile (MMA / SMA)",
+    "country.mexico": "🇲🇽 Mexico (SEMARNAT / CONAGUA)",
+    "country.usa": "🇺🇸 United States (US EPA)",
+    "country.europe": "🇪🇺 European Union (Directives)",
+    "country.brazil": "🇧🇷 Brazil (CONAMA / IBAMA)",
 
     // Common
     "common.calculate": "Calculate",
@@ -109,36 +105,34 @@ const translations = {
     "nav.calculator": "Calculadora",
     "nav.converter": "Conversor",
     "nav.measurement": "Medição",
-    "nav.resources": "Recursos",
+    "nav.resources": "Normas",
     "nav.notes": "Notas",
-    "nav.ai": "EcoIA",
+    "nav.ai": "Assistente IA",
     "nav.settings": "Configurações",
 
     // Calculator
-    "calc.title": "Calculadora Ambiental",
-    "calc.dbo": "DBO",
+    "calc.title": "Laboratório Ambiental",
+    "calc.dbo": "DBO₅",
     "calc.dqo": "DQO",
-    "calc.ica": "IQA",
+    "calc.ica": "IQA-NSF",
     "calc.co2": "CO₂",
     "calc.carbon": "Pegada de Carbono",
     "calc.water": "Pegada Hídrica",
 
     // Settings
     "settings.language": "Idioma",
-    "settings.country": "País/Região",
+    "settings.country": "País / Marco Regulatório",
     "settings.theme": "Tema",
     "settings.notifications": "Notificações",
 
     // Countries
-    "country.mexico": "México",
-    "country.usa": "Estados Unidos",
-    "country.europe": "Europa",
-    "country.brazil": "Brasil",
-    "country.colombia": "Colômbia",
-    "country.argentina": "Argentina",
-    "country.peru": "Peru",
-    "country.ecuador": "Equador",
-    "country.chile": "Chile",
+    "country.peru": "🇵🇪 Peru (MINAM / ANA / OEFA)",
+    "country.colombia": "🇨🇴 Colômbia (MinAmbiente / IDEAM)",
+    "country.chile": "🇨🇱 Chile (MMA / SMA)",
+    "country.mexico": "🇲🇽 México (SEMARNAT / CONAGUA)",
+    "country.usa": "🇺🇸 Estados Unidos (US EPA)",
+    "country.europe": "🇪🇺 União Europeia (Diretivas)",
+    "country.brazil": "🇧🇷 Brasil (CONAMA / IBAMA)",
 
     // Common
     "common.calculate": "Calcular",
@@ -152,11 +146,11 @@ const translations = {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>("es")
-  const [country, setCountryState] = useState<Country>("mexico")
+  const [country, setCountryState] = useState<Country>("peru")
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("ecoingenio_language") as Language
-    const savedCountry = localStorage.getItem("ecoingenio_country") as Country
+    const savedLanguage = localStorage.getItem("gol_language") as Language
+    const savedCountry = localStorage.getItem("gol_country") as Country
 
     if (savedLanguage) setLanguageState(savedLanguage)
     if (savedCountry) setCountryState(savedCountry)
@@ -164,12 +158,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
-    localStorage.setItem("ecoingenio_language", lang)
+    localStorage.setItem("gol_language", lang)
   }
 
   const setCountry = (c: Country) => {
     setCountryState(c)
-    localStorage.setItem("ecoingenio_country", c)
+    localStorage.setItem("gol_country", c)
   }
 
   const t = (key: string): string => {
@@ -177,7 +171,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <I18nContext.Provider value={{ language, country, setLanguage, setCountry, t }}>{children}</I18nContext.Provider>
+    <I18nContext.Provider value={{ language, country, setLanguage, setCountry, t }}>
+      {children}
+    </I18nContext.Provider>
   )
 }
 

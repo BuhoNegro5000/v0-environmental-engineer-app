@@ -58,7 +58,7 @@ export function generatePDFReport(data: any, title: string): string {
           display: flex;
           align-items: center;
           margin-bottom: 30px;
-          border-bottom: 3px solid #10b981;
+          border-bottom: 3px solid #008F72;
           padding-bottom: 20px;
         }
         .logo {
@@ -71,19 +71,21 @@ export function generatePDFReport(data: any, title: string): string {
         }
         h1 {
           margin: 0;
-          color: #10b981;
-          font-size: 28px;
+          color: #103B3A;
+          font-size: 26px;
         }
         .subtitle {
-          color: #666;
-          font-size: 14px;
+          color: #008F72;
+          font-size: 13px;
           margin-top: 5px;
+          font-weight: bold;
         }
         .info {
-          background: #f3f4f6;
+          background: #f4f8f5;
           padding: 15px;
           border-radius: 8px;
           margin: 20px 0;
+          border: 1px solid #dce7e1;
         }
         .info-row {
           display: flex;
@@ -92,10 +94,11 @@ export function generatePDFReport(data: any, title: string): string {
         }
         .label {
           font-weight: bold;
-          color: #555;
+          color: #253533;
         }
         .value {
           color: #333;
+          font-family: monospace;
         }
         table {
           width: 100%;
@@ -103,12 +106,12 @@ export function generatePDFReport(data: any, title: string): string {
           margin: 20px 0;
         }
         th, td {
-          border: 1px solid #ddd;
+          border: 1px solid #dce7e1;
           padding: 12px;
           text-align: left;
         }
         th {
-          background-color: #10b981;
+          background-color: #008F72;
           color: white;
         }
         tr:nth-child(even) {
@@ -119,7 +122,7 @@ export function generatePDFReport(data: any, title: string): string {
           padding-top: 20px;
           border-top: 1px solid #ddd;
           text-align: center;
-          color: #666;
+          color: #647773;
           font-size: 12px;
         }
       </style>
@@ -127,8 +130,8 @@ export function generatePDFReport(data: any, title: string): string {
     <body>
       <div class="header">
         <div class="title">
-          <h1>EcoAI</h1>
-          <div class="subtitle">Tu Laboratorio Ambiental</div>
+          <h1>Laboratorio Ambiental</h1>
+          <div class="subtitle">by GREEN OWL LABS — La ciencia ambiental, en tu bolsillo</div>
         </div>
       </div>
       
@@ -148,7 +151,7 @@ export function generatePDFReport(data: any, title: string): string {
       ${generateDataTable(data)}
       
       <div class="footer">
-        <p>Generado por EcoAI - Plataforma Profesional Ambiental</p>
+        <p>Generado por Laboratorio Ambiental by GREEN OWL LABS — Plataforma Profesional</p>
         <p>Este reporte es confidencial y está destinado únicamente para uso profesional</p>
       </div>
     </body>
@@ -176,10 +179,35 @@ function generateDataTable(data: any): string {
             .map(
               (calc: any) => `
             <tr>
-              <td>${calc.type}</td>
+              <td><strong>${calc.type}</strong></td>
               ${headers.map((h) => `<td>${calc.inputs[h] || "-"}</td>`).join("")}
               <td><strong>${calc.result}</strong></td>
               <td>${new Date(calc.timestamp).toLocaleString("es-ES")}</td>
+            </tr>
+          `,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `
+  }
+
+  if (data.results) {
+    return `
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.entries(data.results)
+            .map(
+              ([key, value]) => `
+            <tr>
+              <td>${key}</td>
+              <td><strong>${value}</strong></td>
             </tr>
           `,
             )
@@ -205,7 +233,7 @@ export function printReport(htmlContent: string) {
 }
 
 export function shareReport(data: any, title: string) {
-  const text = `${title}\n\nGenerado por EcoAI\n${new Date().toLocaleString("es-ES")}`
+  const text = `${title}\n\nGenerado por Laboratorio Ambiental by GREEN OWL LABS\n${new Date().toLocaleString("es-ES")}`
 
   if (navigator.share) {
     navigator
@@ -214,11 +242,9 @@ export function shareReport(data: any, title: string) {
         text: text,
         url: window.location.href,
       })
-      .catch((err) => console.log("Error sharing:", err))
+      .catch((error) => console.log("Error al compartir:", error))
   } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Información copiada al portapapeles")
-    })
+    navigator.clipboard.writeText(`${text}\n${window.location.href}`)
+    alert("Enlace copiado al portapapeles")
   }
 }

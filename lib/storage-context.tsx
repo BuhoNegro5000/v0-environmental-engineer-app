@@ -38,8 +38,8 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
 
   // Load from localStorage on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem("ecoai_history")
-    const savedFavorites = localStorage.getItem("ecoai_favorites")
+    const savedHistory = localStorage.getItem("gol_history") || localStorage.getItem("ecoai_history")
+    const savedFavorites = localStorage.getItem("gol_favorites") || localStorage.getItem("ecoai_favorites")
 
     if (savedHistory) {
       try {
@@ -63,12 +63,14 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
   // Save to localStorage when data changes
   useEffect(() => {
     if (isLoaded) {
+      localStorage.setItem("gol_history", JSON.stringify(history))
       localStorage.setItem("ecoai_history", JSON.stringify(history))
     }
   }, [history, isLoaded])
 
   useEffect(() => {
     if (isLoaded) {
+      localStorage.setItem("gol_favorites", JSON.stringify(favorites))
       localStorage.setItem("ecoai_favorites", JSON.stringify(favorites))
     }
   }, [favorites, isLoaded])
@@ -79,18 +81,20 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
       id: `calc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
     }
-
-    setHistory((prev) => [newCalculation, ...prev].slice(0, 100)) // Keep last 100
+    setHistory((prev) => [newCalculation, ...prev].slice(0, 100))
   }
 
   const clearHistory = () => {
     setHistory([])
+    localStorage.removeItem("gol_history")
+    localStorage.removeItem("ecoai_history")
   }
 
   const addFavorite = (calculator: FavoriteCalculator) => {
-    if (!favorites.find((f) => f.id === calculator.id)) {
-      setFavorites((prev) => [...prev, calculator])
-    }
+    setFavorites((prev) => {
+      if (prev.some((f) => f.id === calculator.id)) return prev
+      return [...prev, calculator]
+    })
   }
 
   const removeFavorite = (id: string) => {
@@ -101,10 +105,10 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
     return favorites.some((f) => f.id === id)
   }
 
-  const getRecentCalculations = (module?: string, limit = 10) => {
+  const getRecentCalculations = (module?: string, limit = 5) => {
     let filtered = history
     if (module) {
-      filtered = history.filter((h) => h.module === module)
+      filtered = filtered.filter((h) => h.module === module)
     }
     return filtered.slice(0, limit)
   }
@@ -129,8 +133,8 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
 
 export function useStorage() {
   const context = useContext(StorageContext)
-  if (context === undefined) {
-    throw new Error("useStorage must be used within a StorageProvider")
+  if (!context) {
+    throw new Error("useStorage must be used within StorageProvider")
   }
   return context
 }

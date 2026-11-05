@@ -120,10 +120,10 @@ export function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B0A] text-[#EAF2EE] transition-colors selection:bg-[#00FFB2] selection:text-[#070B0A]">
+    <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-[#00FFB2] selection:text-[#070B0A]">
       {/* Top Application Bar (Cabina Táctica) */}
-      <header className="sticky top-0 z-30 w-full border-b border-[#1B332D] bg-[#0F1A17]/95 backdrop-blur-md">
-        <div className="container max-w-4xl mx-auto flex h-14 items-center justify-between px-3 sm:px-4">
+      <header className="sticky top-0 z-30 w-full border-b border-border bg-card/95 backdrop-blur-md">
+        <div className="container max-w-6xl mx-auto flex h-14 items-center justify-between px-3 sm:px-4">
           {activeDirectModule ? (
             /* Contextual Back Navigation Header */
             <div className="flex items-center gap-2 min-w-0">
@@ -139,7 +139,7 @@ export function MainApp() {
                 <span>HUD</span>
               </button>
               <div className="h-4 w-[1px] bg-[#1B332D] mx-1 shrink-0" />
-              <h2 className="text-xs sm:text-sm font-bold font-mono text-white truncate max-w-[200px] sm:max-w-xs">
+              <h2 className="text-xs sm:text-sm font-bold font-mono text-foreground truncate max-w-[200px] sm:max-w-xs">
                 {getModuleTitle(activeDirectModule)}
               </h2>
             </div>
@@ -158,7 +158,7 @@ export function MainApp() {
                 />
               </div>
               <div>
-                <h1 className="text-sm font-bold leading-none text-white tracking-wide">
+                <h1 className="text-sm font-bold leading-none text-foreground tracking-wide">
                   Laboratorio Ambiental
                 </h1>
                 <p className="text-[10px] font-mono tracking-widest text-[#00FFB2] uppercase leading-tight mt-0.5">
@@ -210,7 +210,7 @@ export function MainApp() {
       </header>
 
       {/* Main Workspace Body */}
-      <main className="container max-w-4xl mx-auto px-3 sm:px-4 py-4">
+      <main className="container max-w-6xl mx-auto px-3 sm:px-4 py-4">
         {/* If user navigated directly into any of the modules */}
         {activeDirectModule ? (
           <div className="pb-28">

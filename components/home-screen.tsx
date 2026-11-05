@@ -174,13 +174,13 @@ export function HomeScreen({
   ]
 
   return (
-    <div className="space-y-4 pb-28 text-white">
+    <div className="mx-auto max-w-6xl space-y-6 pb-28 text-foreground">
       {/* 1. Cabina principal del laboratorio portátil */}
-      <section className="bg-[#0F1A17] border-2 border-[#1B332D] rounded-2xl p-3.5 shadow-xl relative overflow-hidden">
+      <section className="bg-card border-2 border-border rounded-2xl p-3.5 shadow-xl relative overflow-hidden">
         {/* Glow de acento Bio-Neon superior */}
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#00FFB2] to-transparent opacity-80" />
+        <div className="absolute top-0 inset-x-0 h-1 bg-primary" />
 
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1B332D]">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
           <div className="flex items-center gap-2">
             <div className={`w-2.5 h-2.5 rounded-full ${gpsLocked ? "bg-[#00FFB2] animate-pulse" : "bg-[#FFB800]"}`} />
             <span className="font-mono text-xs font-bold tracking-wider text-[#00FFB2]">
@@ -189,10 +189,10 @@ export function HomeScreen({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#142622] text-[#00E5FF] border border-[#1B332D]">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-muted text-[#00E5FF] border border-border">
               PREC: ±{geo.accuracy ?? 3.8}m
             </span>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#142622] text-[#00FFB2] border border-[#1B332D]">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-muted text-[#00FFB2] border border-border">
               OFFLINE 100%
             </span>
           </div>
@@ -200,15 +200,15 @@ export function HomeScreen({
 
         {/* Coordenadas en Vivo */}
         <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-          <div className="bg-[#070B0A] p-2 rounded-xl border border-[#1B332D]">
-            <span className="text-[10px] text-[#A3B8B2] block">COORDENADAS WGS84:</span>
+          <div className="bg-muted p-2 rounded-xl border border-border">
+            <span className="text-[10px] text-muted-foreground block">COORDENADAS WGS84:</span>
             <span className="text-[#00E5FF] font-bold text-xs truncate block">
               {formatDms(geo.latitude, geo.longitude)}
             </span>
           </div>
 
-          <div className="bg-[#070B0A] p-2 rounded-xl border border-[#1B332D]">
-            <span className="text-[10px] text-[#A3B8B2] block">PROYECCIÓN UTM:</span>
+          <div className="bg-muted p-2 rounded-xl border border-border">
+            <span className="text-[10px] text-muted-foreground block">PROYECCIÓN UTM:</span>
             <span className="text-[#00FFB2] font-bold text-xs truncate block">
               {geo.utmZone} {geo.utmEasting}E {geo.utmNorthing}N
             </span>
@@ -216,7 +216,7 @@ export function HomeScreen({
         </div>
 
         {/* Estación de Monitoreo Activa */}
-        <div className="mt-2.5 pt-2 border-t border-[#1B332D]/80 flex items-center justify-between gap-2">
+        <div className="mt-2.5 pt-2 border-t border-border/80 flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 flex-1 min-w-0">
             <MapPin className="h-4 w-4 text-[#00FFB2] shrink-0" />
             {isEditingStation ? (
@@ -225,7 +225,7 @@ export function HomeScreen({
                   type="text"
                   value={stationInput}
                   onChange={(e) => setStationInput(e.target.value)}
-                  className="bg-[#070B0A] border border-[#00FFB2] rounded px-2 py-0.5 text-xs font-mono text-white flex-1"
+                  className="bg-muted border border-[#00FFB2] rounded px-2 py-0.5 text-xs font-mono text-foreground flex-1"
                   autoFocus
                 />
                 <button
@@ -237,10 +237,10 @@ export function HomeScreen({
               </div>
             ) : (
               <div className="truncate flex-1">
-                <span className="text-[10px] font-mono text-[#A3B8B2] block leading-none">
+                <span className="text-[10px] font-mono text-muted-foreground block leading-none">
                   CONTEXTO DE TRABAJO:
                 </span>
-                <span className="font-mono text-xs font-bold text-white truncate block mt-0.5">
+                <span className="font-mono text-xs font-bold text-foreground truncate block mt-0.5">
                   {activeStation}
                 </span>
               </div>
@@ -250,7 +250,7 @@ export function HomeScreen({
           {!isEditingStation && (
             <button
               onClick={() => setIsEditingStation(true)}
-              className="text-[10px] font-mono px-2 py-1 rounded bg-[#142622] hover:bg-[#1B332D] text-[#00FFB2] border border-[#1B332D] shrink-0"
+              className="text-[10px] font-mono px-2 py-1 rounded bg-muted hover:bg-[#1B332D] text-[#00FFB2] border border-border shrink-0"
             >
               Cambiar contexto
             </button>
@@ -260,7 +260,7 @@ export function HomeScreen({
 
       {/* 2. Caja de herramientas para resolver problemas en campo */}
       <section className="space-y-1.5">
-        <h3 className="font-mono text-xs font-bold tracking-wider text-[#A3B8B2] uppercase px-1 flex items-center gap-1.5">
+        <h3 className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase px-1 flex items-center gap-1.5">
           <Activity className="h-3.5 w-3.5 text-[#00FFB2]" />
           CAJA DE HERRAMIENTAS // ACCESO RÁPIDO
         </h3>
@@ -269,7 +269,7 @@ export function HomeScreen({
           {/* Pad 1: Cámara Técnica con Watermark */}
           <button
             onClick={onOpenPhotoCamera}
-            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#00FFB2]/50 hover:border-[#00FFB2] shadow-lg shadow-[#00FFB2]/10 transition-all text-left group active:scale-95"
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-card hover:bg-muted border-2 border-[#00FFB2]/50 hover:border-[#00FFB2] shadow-lg shadow-[#00FFB2]/10 transition-all text-left group active:scale-95"
           >
             <div className="w-10 h-10 rounded-xl bg-[#00FFB2] text-[#070B0A] flex items-center justify-center mb-2 shadow-md shadow-[#00FFB2]/30 group-hover:scale-105 transition-transform">
               <Camera className="h-5 w-5 stroke-[2.4]" />
@@ -277,7 +277,7 @@ export function HomeScreen({
             <span className="font-mono text-xs font-bold text-[#00FFB2] tracking-wider leading-tight">
               FOTO CON SELLO
             </span>
-            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+            <span className="text-[10px] font-mono text-muted-foreground mt-0.5">
               Estampado GPS & fecha
             </span>
           </button>
@@ -285,7 +285,7 @@ export function HomeScreen({
           {/* Pad 2: Nota Rápida con Coordenadas */}
           <button
             onClick={onOpenQuickNote}
-            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#00E5FF]/40 hover:border-[#00E5FF] shadow-lg shadow-[#00E5FF]/10 transition-all text-left group active:scale-95"
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-card hover:bg-muted border-2 border-[#00E5FF]/40 hover:border-[#00E5FF] shadow-lg shadow-[#00E5FF]/10 transition-all text-left group active:scale-95"
           >
             <div className="w-10 h-10 rounded-xl bg-[#00E5FF] text-[#070B0A] flex items-center justify-center mb-2 shadow-md shadow-[#00E5FF]/30 group-hover:scale-105 transition-transform">
               <FileText className="h-5 w-5 stroke-[2.4]" />
@@ -293,7 +293,7 @@ export function HomeScreen({
             <span className="font-mono text-xs font-bold text-[#00E5FF] tracking-wider leading-tight">
 NOTA TÉCNICA
             </span>
-            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+            <span className="text-[10px] font-mono text-muted-foreground mt-0.5">
               Hipótesis, datos y decisiones
             </span>
           </button>
@@ -301,7 +301,7 @@ NOTA TÉCNICA
           {/* Pad 3: Test In-Situ vs ECA */}
           <button
             onClick={onOpenQuickInsitu}
-            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#FFB800]/40 hover:border-[#FFB800] shadow-lg shadow-[#FFB800]/10 transition-all text-left group active:scale-95"
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-card hover:bg-muted border-2 border-[#FFB800]/40 hover:border-[#FFB800] shadow-lg shadow-[#FFB800]/10 transition-all text-left group active:scale-95"
           >
             <div className="w-10 h-10 rounded-xl bg-[#FFB800] text-[#070B0A] flex items-center justify-center mb-2 shadow-md shadow-[#FFB800]/30 group-hover:scale-105 transition-transform">
               <Activity className="h-5 w-5 stroke-[2.4]" />
@@ -309,7 +309,7 @@ NOTA TÉCNICA
             <span className="font-mono text-xs font-bold text-[#FFB800] tracking-wider leading-tight">
               TEST IN-SITU
             </span>
-            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+            <span className="text-[10px] font-mono text-muted-foreground mt-0.5">
               pH, OD, CE vs ECA
             </span>
           </button>
@@ -317,15 +317,15 @@ NOTA TÉCNICA
           {/* Pad 4: Dossier / Bitácora Completa */}
           <button
             onClick={() => onNavigate("notes")}
-            className="flex flex-col items-start p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border-2 border-[#1B332D] hover:border-[#00FFB2]/50 transition-all text-left group active:scale-95"
+            className="flex flex-col items-start p-3.5 rounded-2xl bg-card hover:bg-muted border-2 border-border hover:border-[#00FFB2]/50 transition-all text-left group active:scale-95"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#142622] text-[#00FFB2] border border-[#1B332D] flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-muted text-[#00FFB2] border border-border flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
               <CheckCircle2 className="h-5 w-5 stroke-[2.2]" />
             </div>
-            <span className="font-mono text-xs font-bold text-white tracking-wider leading-tight">
+            <span className="font-mono text-xs font-bold text-foreground tracking-wider leading-tight">
               DOSSIER & CHECK
             </span>
-            <span className="text-[10px] font-mono text-[#A3B8B2] mt-0.5">
+            <span className="text-[10px] font-mono text-muted-foreground mt-0.5">
               Bitácora & reportes
             </span>
           </button>
@@ -335,7 +335,7 @@ NOTA TÉCNICA
       {/* 3. LAS 4 CONSOLAS CIENTÍFICAS ESPECIALIZADAS */}
       <section className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <h3 className="font-mono text-xs font-bold tracking-wider text-[#A3B8B2] uppercase flex items-center gap-1.5">
+          <h3 className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase flex items-center gap-1.5">
             <Calculator className="h-3.5 w-3.5 text-[#00FFB2]" />
             CONSOLAS INSTRUMENTALES // CÁLCULOS
           </h3>
@@ -355,30 +355,30 @@ NOTA TÉCNICA
               <button
                 key={consoleItem.id}
                 onClick={consoleItem.onClick}
-                className="flex items-center justify-between p-3.5 rounded-2xl bg-[#0F1A17] hover:bg-[#142622] border border-[#1B332D] hover:border-[#00FFB2]/50 transition-all text-left group"
+                className="flex items-center justify-between p-3.5 rounded-2xl bg-card hover:bg-muted border border-border hover:border-[#00FFB2]/50 transition-all text-left group"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className={`w-11 h-11 rounded-xl bg-[#070B0A] border flex items-center justify-center shrink-0 ${consoleItem.color}`}
+                    className={`w-11 h-11 rounded-xl bg-muted border flex items-center justify-center shrink-0 ${consoleItem.color}`}
                   >
                     <Icon className="h-5 w-5 stroke-[2.2]" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-mono text-xs font-bold text-white tracking-wider">
+                      <h4 className="font-mono text-xs font-bold text-foreground tracking-wider">
                         {consoleItem.title}
                       </h4>
-                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#142622] text-[#A3B8B2] border border-[#1B332D]">
+                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-muted text-muted-foreground border border-border">
                         {consoleItem.badge}
                       </span>
                     </div>
-                    <p className="text-[11px] font-mono text-[#A3B8B2] truncate mt-0.5">
+                    <p className="text-[11px] font-mono text-muted-foreground truncate mt-0.5">
                       {consoleItem.desc}
                     </p>
                   </div>
                 </div>
 
-                <ArrowRight className="h-4 w-4 text-[#A3B8B2] group-hover:text-[#00FFB2] group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-[#00FFB2] group-hover:translate-x-1 transition-all shrink-0 ml-2" />
               </button>
             )
           })}
@@ -388,17 +388,17 @@ NOTA TÉCNICA
       {/* 4. FEED DE EVIDENCIAS RECIENTES DE LA JORNADA */}
       <section className="space-y-2">
         <div className="flex items-center justify-between px-1">
-          <h3 className="font-mono text-xs font-bold tracking-wider text-[#A3B8B2] uppercase flex items-center gap-1.5">
+          <h3 className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase flex items-center gap-1.5">
             <History className="h-3.5 w-3.5 text-[#00E5FF]" />
             EVIDENCIAS REGISTRADAS EN LA JORNADA
           </h3>
-          <span className="text-[10px] font-mono text-[#A3B8B2]">
+          <span className="text-[10px] font-mono text-muted-foreground">
             {recentPhotos.length} fotos • {recentNotes.length} notas
           </span>
         </div>
 
         {recentPhotos.length === 0 && recentNotes.length === 0 ? (
-          <div className="bg-[#0F1A17] border border-[#1B332D] rounded-2xl p-6 text-center text-[#A3B8B2] font-mono space-y-2">
+          <div className="bg-card border border-border rounded-2xl p-6 text-center text-muted-foreground font-mono space-y-2">
             <Camera className="h-8 w-8 mx-auto text-[#00FFB2]/40" />
             <p className="text-xs">No hay evidencias registradas en esta jornada.</p>
             <p className="text-[10px] text-[#647773]">
@@ -413,7 +413,7 @@ NOTA TÉCNICA
                 {recentPhotos.slice(0, 2).map((photo) => (
                   <div
                     key={photo.id}
-                    className="relative bg-[#070B0A] border border-[#1B332D] rounded-xl overflow-hidden group"
+                    className="relative bg-muted border border-border rounded-xl overflow-hidden group"
                   >
                     <img
                       src={photo.dataUrl}
@@ -422,7 +422,7 @@ NOTA TÉCNICA
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2 text-[10px] font-mono">
                       <span className="text-[#00FFB2] font-bold block truncate">{photo.station}</span>
-                      <span className="text-[#A3B8B2] text-[9px] block">
+                      <span className="text-muted-foreground text-[9px] block">
                         {new Date(photo.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
@@ -437,15 +437,15 @@ NOTA TÉCNICA
                 {recentNotes.slice(0, 2).map((note) => (
                   <div
                     key={note.id}
-                    className="bg-[#0F1A17] border border-[#1B332D] rounded-xl p-2.5 text-xs font-mono"
+                    className="bg-card border border-border rounded-xl p-2.5 text-xs font-mono"
                   >
                     <div className="flex items-center justify-between text-[#00E5FF] mb-1">
                       <span className="font-bold truncate">{note.title}</span>
-                      <span className="text-[9px] text-[#A3B8B2]">
+                      <span className="text-[9px] text-muted-foreground">
                         {new Date(note.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#A3B8B2] line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
                       {note.content}
                     </p>
                   </div>

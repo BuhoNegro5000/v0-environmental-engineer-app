@@ -25,7 +25,7 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 bg-[#070B0A]/95 backdrop-blur-md border-t border-[#1B332D] transition-colors"
+      className="fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border transition-colors"
       aria-label="Navegación táctica de campo"
     >
       <div className="max-w-md mx-auto px-2 py-1 flex items-center justify-between pb-safe">
@@ -35,7 +35,7 @@ export function BottomNavigation({
           className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all ${
             currentDestination === "home"
               ? "text-[#00FFB2]"
-              : "text-[#647773] hover:text-[#A3B8B2]"
+              : "text-muted-foreground hover:text-foreground"
           }`}
           aria-label="HUD Campo"
         >
@@ -57,7 +57,7 @@ export function BottomNavigation({
           className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all ${
             currentDestination === "lab"
               ? "text-[#00FFB2]"
-              : "text-[#647773] hover:text-[#A3B8B2]"
+              : "text-muted-foreground hover:text-foreground"
           }`}
           aria-label="Instrumentos"
         >
@@ -77,7 +77,7 @@ export function BottomNavigation({
         <div className="flex flex-col items-center justify-center px-1">
           <button
             onClick={onOpenActionDock}
-            className="group relative -mt-5 flex items-center justify-center w-12 h-12 rounded-2xl bg-[#00FFB2] text-[#070B0A] shadow-lg shadow-[#00FFB2]/40 border-2 border-[#070B0A] active:scale-90 hover:scale-105 transition-all"
+            className="group relative -mt-5 flex items-center justify-center w-12 h-12 rounded-2xl bg-[#00FFB2] text-primary-foreground shadow-lg shadow-[#00FFB2]/40 border-2 border-card active:scale-90 hover:scale-105 transition-all"
             aria-label="Acciones de Campo 1-Tap"
           >
             <Plus className="h-6 w-6 stroke-[3] group-hover:rotate-90 transition-transform duration-200" />
@@ -94,7 +94,7 @@ export function BottomNavigation({
           className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all ${
             currentDestination === "regulations"
               ? "text-[#00FFB2]"
-              : "text-[#647773] hover:text-[#A3B8B2]"
+              : "text-muted-foreground hover:text-foreground"
           }`}
           aria-label="Normativa"
         >
@@ -116,7 +116,7 @@ export function BottomNavigation({
           className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all ${
             currentDestination === "dossier"
               ? "text-[#00FFB2]"
-              : "text-[#647773] hover:text-[#A3B8B2]"
+              : "text-muted-foreground hover:text-foreground"
           }`}
           aria-label="Dossier"
         >

@@ -1,3 +1,5 @@
+import { norms, type NormLimit } from "@/lib/norms"
+
 export interface RegulationLimit {
   parameter: string
   limit: number | string
@@ -5,6 +7,14 @@ export interface RegulationLimit {
   standard: string
   category?: string
 }
+
+const peruNormativeLimits: RegulationLimit[] = norms.map((norm: NormLimit) => ({
+  parameter: norm.parametro,
+  limit: norm.max ?? (norm.min !== null ? `≥ ${norm.min}` : "No especificado"),
+  unit: norm.unidad,
+  standard: norm.norma,
+  category: norm.categoria,
+}))
 
 export interface CountryRegulations {
   name: string
@@ -18,30 +28,8 @@ export interface CountryRegulations {
 export const regulationsByCountry: Record<string, CountryRegulations> = {
   peru: {
     name: "Perú - MINAM",
-    waterQuality: [
-      { parameter: "pH", limit: "6.5 - 8.5", unit: "unidades", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2 / Cat 3" },
-      { parameter: "DBO₅ (Cat 1-A2 Potabilización)", limit: 5, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "DBO₅ (Cat 3 Riego de vegetales)", limit: 15, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 3" },
-      { parameter: "DBO₅ (Cat 4 Conservación Ríos)", limit: 10, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 4" },
-      { parameter: "DQO (Cat 1-A2 Potabilización)", limit: 10, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "DQO (Cat 3 Riego de vegetales)", limit: 40, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 3" },
-      { parameter: "Sólidos Suspendidos Totales (SST)", limit: 50, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Aceites y Grasas (Cat 1-A2)", limit: 0.5, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Coliformes Termotolerantes (Cat 1-A2)", limit: 2000, unit: "NMP/100mL", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Coliformes Termotolerantes (Cat 3 Riego)", limit: 1000, unit: "NMP/100mL", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 3" },
-      { parameter: "Nitratos (NO₃⁻)", limit: 50, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Fósforo Total", limit: 0.15, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Arsénico Total", limit: 0.01, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Cadmio Total", limit: 0.003, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      { parameter: "Plomo Total", limit: 0.01, unit: "mg/L", standard: "D.S. N° 004-2017-MINAM", category: "ECA Agua Cat 1-A2" },
-      // Efluentes PTAR
-      { parameter: "LMP PTAR - pH", limit: "6.5 - 8.5", unit: "unidades", standard: "D.S. N° 003-2010-MINAM", category: "LMP Efluentes PTAR" },
-      { parameter: "LMP PTAR - DBO₅", limit: 100, unit: "mg/L", standard: "D.S. N° 003-2010-MINAM", category: "LMP Efluentes PTAR" },
-      { parameter: "LMP PTAR - DQO", limit: 200, unit: "mg/L", standard: "D.S. N° 003-2010-MINAM", category: "LMP Efluentes PTAR" },
-      { parameter: "LMP PTAR - SST", limit: 150, unit: "mg/L", standard: "D.S. N° 003-2010-MINAM", category: "LMP Efluentes PTAR" },
-      { parameter: "LMP PTAR - Aceites y Grasas", limit: 20, unit: "mg/L", standard: "D.S. N° 003-2010-MINAM", category: "LMP Efluentes PTAR" },
-      { parameter: "LMP PTAR - Coliformes Termotolerantes", limit: 10000, unit: "NMP/100mL", standard: "D.S. N° 003-2010-MINAM", category: "LMP Efluentes PTAR" },
-    ],
+    waterQuality: peruNormativeLimits.filter((item) => item.category?.startsWith("ECA Agua")),
+    effluentLimits: peruNormativeLimits.filter((item) => item.category === "LMP PTAR"),
     airQuality: [
       { parameter: "Material Particulado PM10 (24h)", limit: 100, unit: "µg/m³", standard: "D.S. N° 003-2017-MINAM" },
       { parameter: "Material Particulado PM2.5 (24h)", limit: 50, unit: "µg/m³", standard: "D.S. N° 003-2017-MINAM" },
@@ -55,19 +43,7 @@ export const regulationsByCountry: Record<string, CountryRegulations> = {
       { parameter: "Plomo en PM10 (anual)", limit: 0.5, unit: "µg/m³", standard: "D.S. N° 003-2017-MINAM" },
       { parameter: "Benceno (anual)", limit: 2, unit: "µg/m³", standard: "D.S. N° 003-2017-MINAM" },
     ],
-    soilQuality: [
-      { parameter: "Arsénico (As) Agrícola/Residencial", limit: 50, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Arsénico (As) Comercial/Industrial", limit: 140, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Cadmio (Cd) Agrícola", limit: 1.4, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Cadmio (Cd) Residencial/Parques", limit: 10, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Cadmio (Cd) Comercial/Industrial", limit: 22, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Plomo (Pb) Agrícola", limit: 70, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Plomo (Pb) Residencial/Parques", limit: 140, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Plomo (Pb) Comercial/Industrial", limit: 800, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Hidrocarburos F1 (C6-C10) Agrícola", limit: 200, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Hidrocarburos F2 (C10-C28) Agrícola", limit: 1200, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-      { parameter: "Hidrocarburos F3 (C28-C40) Agrícola", limit: 3000, unit: "mg/kg MS", standard: "D.S. N° 011-2017-MINAM" },
-    ],
+    soilQuality: peruNormativeLimits.filter((item) => item.category === "ECA Suelo F1-F3"),
     noiseLimits: [
       { parameter: "Zona de Protección Especial", limit: "50 Día / 40 Noche", unit: "dBA", standard: "D.S. N° 085-2003-PCM" },
       { parameter: "Zona Residencial", limit: "60 Día / 50 Noche", unit: "dBA", standard: "D.S. N° 085-2003-PCM" },

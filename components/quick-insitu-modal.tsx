@@ -12,6 +12,7 @@ import {
   Gauge,
 } from "lucide-react"
 import { formatDms, latLngToUtm, type GeoLocationState } from "@/lib/geo-utils"
+import { getNorm, getNormCategoryLabel, type NormCategory } from "@/lib/norms"
 
 interface QuickInsituModalProps {
   isOpen: boolean
@@ -27,7 +28,7 @@ export function QuickInsituModal({
   onMeasurementSaved,
 }: QuickInsituModalProps) {
   const [station, setStation] = useState(currentStation)
-  const [normType, setNormType] = useState<"eca_cat3" | "eca_cat4" | "lmp_ptar">("eca_cat3")
+  const [normType, setNormType] = useState<NormCategory>("ECA Agua 3-D1")
 
   // Parámetros in-situ
   const [ph, setPh] = useState<string>("7.2")
@@ -70,37 +71,25 @@ export function QuickInsituModal({
   }, [isOpen])
 
   // Evaluación en tiempo real contra normativa peruana
-  const evalPh = (val: number): { status: "ok" | "warn" | "fail"; msg: string } => {
-    if (isNaN(val)) return { status: "warn", msg: "Sin datos" }
-    if (val >= 6.5 && val <= 8.5) return { status: "ok", msg: "Cumple ECA (6.5 - 8.5)" }
-    if ((val >= 6.0 && val < 6.5) || (val > 8.5 && val <= 9.0))
-      return { status: "warn", msg: "Alerta de borde (6.0 - 9.0)" }
+  const evaluate = (parameter: string, value: number): { status: "ok" | "warn" | "fail"; msg: string } => {
+    if (Number.isNaN(value)) return { status: "warn", msg: "Sin datos" }
+    const limit = getNorm(parameter, normType)
+    if (!limit || (limit.min === null && limit.max === null)) {
+      return { status: "warn", msg: "Sin límite normativo disponible" }
+    }
+    const below = limit.min !== null && value < limit.min
+    const above = limit.max !== null && value > limit.max
+    if (!below && !above) return { status: "ok", msg: "Cumple límite normativo" }
     return { status: "fail", msg: "SUPERÓ LÍMITE NORMATIVO" }
   }
 
-  const evalDo = (val: number): { status: "ok" | "warn" | "fail"; msg: string } => {
-    if (isNaN(val)) return { status: "warn", msg: "Sin datos" }
-    const minDo = normType === "eca_cat4" ? 5.0 : 4.0
-    if (val >= minDo) return { status: "ok", msg: `Cumple OD (≥ ${minDo} mg/L)` }
-    if (val >= minDo - 1.0) return { status: "warn", msg: `Déficit leve (< ${minDo} mg/L)` }
-    return { status: "fail", msg: `ANÓXICO / CRÍTICO (< ${minDo - 1} mg/L)` }
-  }
+  const evalPh = evaluate("pH", parseFloat(ph))
+  const evalDo = evaluate("OD", parseFloat(doVal))
+  const evalEc = evaluate("CE", parseFloat(ec))
 
-  const evalEc = (val: number): { status: "ok" | "warn" | "fail"; msg: string } => {
-    if (isNaN(val)) return { status: "warn", msg: "Sin datos" }
-    const maxEc = normType === "eca_cat3" ? 2000 : 1000
-    if (val <= maxEc) return { status: "ok", msg: `Cumple CE (≤ ${maxEc} µS/cm)` }
-    if (val <= maxEc * 1.2) return { status: "warn", msg: "Salinidad elevada" }
-    return { status: "fail", msg: `EXCEDE LÍMITE (> ${maxEc} µS/cm)` }
-  }
-
-  const phNum = parseFloat(ph)
-  const doNum = parseFloat(doVal)
-  const ecNum = parseFloat(ec)
-
-  const phEval = evalPh(phNum)
-  const doEval = evalDo(doNum)
-  const ecEval = evalEc(ecNum)
+  const phEval = evalPh
+  const doEval = evalDo
+  const ecEval = evalEc
 
   const overallCompliant =
     phEval.status === "ok" && doEval.status === "ok" && ecEval.status === "ok"
@@ -108,7 +97,7 @@ export function QuickInsituModal({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
 
-    const summaryText = `EVALUACIÓN IN-SITU [${station}]:\n• pH: ${ph} (${phEval.msg})\n• Oxígeno Disuelto: ${doVal} mg/L (${doEval.msg})\n• Cond. Eléctrica: ${ec} µS/cm (${ecEval.msg})\n• Temperatura: ${temp} °C\n• Turbidez: ${turb} NTU\n• Norma Ref: ${normType === "eca_cat3" ? "ECA Agua Cat 3 (D.S. 004-2017-MINAM)" : normType === "eca_cat4" ? "ECA Agua Cat 4" : "LMP PTAR (D.S. 003-2010-MINAM)"}`
+    const summaryText = `EVALUACIÓN IN-SITU [${station}]:\n• pH: ${ph} (${phEval.msg})\n• Oxígeno Disuelto: ${doVal} mg/L (${doEval.msg})\n• Cond. Eléctrica: ${ec} µS/cm (${ecEval.msg})\n• Temperatura: ${temp} °C\n• Turbidez: ${turb} NTU\n• Norma Ref: ${getNormCategoryLabel(normType)}`
 
     const newNote = {
       id: `insitu_${Date.now()}`,
@@ -194,9 +183,12 @@ export function QuickInsituModal({
                 onChange={(e) => setNormType(e.target.value as any)}
                 className="w-full bg-[#070B0A] border border-[#1B332D] rounded-lg p-2 text-white text-xs font-mono focus:border-[#00FFB2] focus:outline-none"
               >
-                <option value="eca_cat3">ECA Agua Cat 3 (Riego/Bebida)</option>
-                <option value="eca_cat4">ECA Agua Cat 4 (Ríos/Lagos)</option>
-                <option value="lmp_ptar">LMP PTAR (D.S. 003-2010)</option>
+                <option value="ECA Agua 1-A1">ECA Agua 1-A1</option>
+                <option value="ECA Agua 1-A2">ECA Agua 1-A2</option>
+                <option value="ECA Agua 3-D1">ECA Agua 3-D1</option>
+                <option value="ECA Agua 3-D2">ECA Agua 3-D2</option>
+                <option value="ECA Agua 4-E2">ECA Agua 4-E2</option>
+                <option value="LMP PTAR">LMP PTAR</option>
               </select>
             </div>
           </div>

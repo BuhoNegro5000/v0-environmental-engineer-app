@@ -20,10 +20,13 @@ import {
 } from "recharts"
 import { TrendingUp, BarChart3, Activity, Download } from "lucide-react"
 import { useMemo } from "react"
+import { getNorm } from "@/lib/norms"
 
 export function ChartsPanel() {
   const { history } = useStorage()
   const { t, language } = useI18n()
+  const dboLimit = getNorm("DBO5", "ECA Agua 1-A2")?.max
+  const dqoLimit = getNorm("DQO", "ECA Agua 1-A2")?.max
 
   const chartData = useMemo(() => {
     const dboData = history

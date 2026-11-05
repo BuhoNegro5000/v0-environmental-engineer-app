@@ -97,7 +97,7 @@ Todas las fórmulas y cálculos han sido auditados contra métodos oficiales y c
 ## 🏛️ Normativa Peruana Integrada
 
 - **ECA Agua:** *D.S. N° 004-2017-MINAM* (Categorías 1, 2, 3 y 4 con subclases).
-- **LMP Efluentes PTAR:** *D.S. N° 003-2010-MINAM* (DBO 100 mg/L, DQO 200 mg/L, SST 100 mg/L, Aceites 20 mg/L).
+- **LMP Efluentes PTAR:** *D.S. N° 003-2010-MINAM* (DBO 100 mg/L, DQO 200 mg/L, SST 150 mL/L, Aceites 20 mg/L). Los límites normativos se mantienen en `lib/norms.ts`.
 - **ECA Aire:** *D.S. N° 003-2017-MINAM* (SO₂, PM₁₀, PM₂.₅, NO₂, O₃, CO, Plomo y Benceno).
 - **ECA Suelo:** *D.S. N° 011-2017-MINAM* (Suelo agrícola, residencial/parques y comercial/industrial).
 - **ECA Ruido:** *D.S. N° 085-2003-PCM* (Zonas de protección especial, residencial, comercial e industrial diurno/nocturno).

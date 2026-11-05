@@ -165,11 +165,11 @@ export function HomeScreen({
       id: "hydraulics",
       title: "AFOROS & CAMPO",
       tag: "Standard Methods",
-      desc: "Costos, Reactores, Dosificación",
+      desc: "Vertederos, Manning, flotadores y velocidad-área",
       icon: Wrench,
       color: "border-[#BCE8D9] text-[#BCE8D9]",
       badge: "Hidráulica",
-      onClick: () => onNavigate("tools"),
+      onClick: () => onNavigate("flow_measurement"),
     },
   ]
 

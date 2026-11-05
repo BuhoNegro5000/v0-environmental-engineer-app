@@ -7,7 +7,6 @@ import {
   Layers,
   Star,
   Settings,
-  Camera,
   Activity,
   FileText,
   Compass,
@@ -30,7 +29,6 @@ import { ConverterModule } from "@/components/converter-module"
 import { MeasurementModule } from "@/components/measurement-module"
 import { PracticalToolsModule } from "@/components/practical-tools-module"
 import { FlowMeasurementModule } from "@/components/flow-measurement-module"
-import { FieldCameraModal } from "@/components/field-camera-modal"
 import { QuickNoteModal } from "@/components/quick-note-modal"
 import { QuickInsituModal } from "@/components/quick-insitu-modal"
 import { FieldActionDock } from "@/components/field-action-dock"
@@ -44,7 +42,6 @@ export function MainApp() {
 
   // Modales de Acción Rápida en Campo
   const [actionDockOpen, setActionDockOpen] = useState(false)
-  const [cameraModalOpen, setCameraModalOpen] = useState(false)
   const [quickNoteOpen, setQuickNoteOpen] = useState(false)
   const [quickInsituOpen, setQuickInsituOpen] = useState(false)
 
@@ -169,16 +166,6 @@ export function MainApp() {
           )}
 
           <div className="flex items-center gap-1">
-            {/* Acceso rápido a cámara desde el header */}
-            <button
-              onClick={() => setCameraModalOpen(true)}
-              className="p-2 rounded-xl text-[#00FFB2] hover:bg-[#142622] transition-colors border border-transparent hover:border-[#00FFB2]/30"
-              title="Cámara con Sello Técnico"
-              aria-label="Abrir cámara técnica"
-            >
-              <Camera className="h-4 w-4" />
-            </button>
-
             {activeDirectModule && (
               <button
                 onClick={toggleCurrentFavorite}
@@ -235,7 +222,6 @@ export function MainApp() {
               <HomeScreen
                 onNavigate={handleNavigate}
                 onOpenToolsCatalog={() => setToolsSheetOpen(true)}
-                onOpenPhotoCamera={() => setCameraModalOpen(true)}
                 onOpenQuickNote={() => setQuickNoteOpen(true)}
                 onOpenQuickInsitu={() => setQuickInsituOpen(true)}
               />
@@ -260,12 +246,6 @@ export function MainApp() {
         )}
       </main>
 
-      {/* Modales Tácticos de Operaciones en Campo */}
-      <FieldCameraModal
-        isOpen={cameraModalOpen}
-        onClose={() => setCameraModalOpen(false)}
-      />
-
       <QuickNoteModal
         isOpen={quickNoteOpen}
         onClose={() => setQuickNoteOpen(false)}
@@ -279,7 +259,6 @@ export function MainApp() {
       <FieldActionDock
         isOpen={actionDockOpen}
         onClose={() => setActionDockOpen(false)}
-        onOpenPhotoCamera={() => setCameraModalOpen(true)}
         onOpenQuickNote={() => setQuickNoteOpen(true)}
         onOpenQuickInsitu={() => setQuickInsituOpen(true)}
         onOpenCalculators={() => {

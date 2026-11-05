@@ -283,16 +283,16 @@ export function NotesModule() {
       <div className="px-3">
         <h2 className="text-2xl font-semibold text-foreground mb-2 flex items-center gap-2">
           <FileText className="h-6 w-6 text-[#008F72]" />
-          Bitácora & Notas Técnicas de Campo
+          Cuaderno de laboratorio
         </h2>
         <p className="text-sm text-muted-foreground">
-          Registro de observaciones georreferenciadas y listas de verificación según protocolos MINAM
+          Guarda hipótesis, observaciones, datos de ensayo, decisiones de diseño y conclusiones para volver a ellas cuando las necesites.
         </p>
       </div>
 
       <Tabs defaultValue="notes" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="notes">Notas de Campo ({notes.length})</TabsTrigger>
+          <TabsTrigger value="notes">Notas técnicas ({notes.length})</TabsTrigger>
           <TabsTrigger value="checklists">Checklists de Muestreo ({checklists.length})</TabsTrigger>
         </TabsList>
 
@@ -307,7 +307,7 @@ export function NotesModule() {
           {showNoteForm && (
             <Card className="border-[#DCE7E1]">
               <CardHeader>
-                <CardTitle className="text-base">Registrar Nueva Observación de Campo</CardTitle>
+                <CardTitle className="text-base">Nueva nota de laboratorio</CardTitle>
                 <CardDescription className="text-xs">
                   Se capturarán automáticamente coordenadas geográficas de referencia
                 </CardDescription>

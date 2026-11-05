@@ -13,13 +13,11 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setFading(true)
-      setTimeout(() => {
-        onFinish?.()
-      }, 350)
-    }, 1800)
+      onFinish?.()
+    }, 1200)
 
     return () => clearTimeout(timer)
-  }, [onFinish])
+  }, [])
 
   return (
     <div

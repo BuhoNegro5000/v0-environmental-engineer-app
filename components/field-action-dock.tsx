@@ -2,7 +2,6 @@
 
 import React, { useState } from "react"
 import {
-  Camera,
   FileText,
   Activity,
   Calculator,
@@ -14,7 +13,6 @@ import {
 interface FieldActionDockProps {
   isOpen: boolean
   onClose: () => void
-  onOpenPhotoCamera: () => void
   onOpenQuickNote: () => void
   onOpenQuickInsitu: () => void
   onOpenCalculators: () => void
@@ -23,7 +21,6 @@ interface FieldActionDockProps {
 export function FieldActionDock({
   isOpen,
   onClose,
-  onOpenPhotoCamera,
   onOpenQuickNote,
   onOpenQuickInsitu,
   onOpenCalculators,
@@ -31,18 +28,6 @@ export function FieldActionDock({
   if (!isOpen) return null
 
   const actions = [
-    {
-      id: "photo",
-      title: "CÁMARA CON SELLO",
-      sub: "Foto con GPS, fecha y estación",
-      icon: Camera,
-      color: "bg-[#00FFB2] text-[#070B0A] shadow-[#00FFB2]/30",
-      textColor: "text-[#00FFB2]",
-      onClick: () => {
-        onClose()
-        onOpenPhotoCamera()
-      },
-    },
     {
       id: "note",
       title: "NOTA RÁPIDA",

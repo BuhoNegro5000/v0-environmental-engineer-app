@@ -159,6 +159,8 @@ export function CalculatorModule() {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const od = Number.parseFloat(formData.get("od") as string)
+    const altitudeRaw = formData.get("altitude") as string
+    const altitude = altitudeRaw?.trim() ? Number.parseFloat(altitudeRaw) : undefined
     const ph = Number.parseFloat(formData.get("ph") as string)
     const turbidez = Number.parseFloat(formData.get("turbidez") as string)
     const bodRaw = formData.get("bod") as string
@@ -171,6 +173,7 @@ export function CalculatorModule() {
 
     const r = calculateWqi({
       doMgL: od,
+      altitudeM: altitude,
       ph,
       turbidityNtu: turbidez,
       bod5MgL: bod,
@@ -432,28 +435,32 @@ export function CalculatorModule() {
             <CardHeader className="px-4 py-5">
               <div className="flex items-center gap-2">
                 <TrendingDown className="h-5 w-5 text-accent flex-shrink-0" />
-                <CardTitle className="text-lg">Índice de Calidad del Agua (ICA-NSF / ICA-PE)</CardTitle>
+                <CardTitle className="text-lg">ICA referencial (basado en NSF)</CardTitle>
               </div>
               <CardDescription className="text-sm leading-relaxed">
-                Evaluación multicriterio según curvas de subíndice validadas por NSF y Autoridad Nacional del Agua (ANA)
+                Evaluación multicriterio referencial según las curvas NSF; no es el ICA-PE oficial.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-4 pb-6">
               <Alert className="mb-5 bg-green-50 border-green-200">
                 <Info className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-sm">
-                  <p className="font-semibold text-green-900 mb-1">Metodología Estandarizada NSF / ANA (R.J. 056-2018-ANA):</p>
+                  <p className="font-semibold text-green-900 mb-1">Advertencia de uso:</p>
                   <p className="text-xs text-green-800 leading-relaxed">
-                    Calcula subíndices de calidad ($q_i \in [0, 100]$) mediante curvas de ponderación analítica. Permite evaluar desde 3 parámetros clave hasta el panel completo.
+                    No equivale al ICA-PE oficial ni debe reportarse como tal. Calcula subíndices referenciales ($q_i \in [0, 100]$) mediante curvas NSF.
                   </p>
                 </AlertDescription>
               </Alert>
 
               <form onSubmit={calculateICA} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="od" className="text-sm font-medium">Oxígeno Disuelto (mg/L) *</Label>
                     <Input id="od" name="od" type="number" step="0.1" placeholder="7.5" required className="h-12 text-base" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="altitude" className="text-sm font-medium">Altitud GPS/manual (m)</Label>
+                    <Input id="altitude" name="altitude" type="number" step="1" placeholder="0" className="h-12 text-base" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ph" className="text-sm font-medium">pH (unidades) *</Label>

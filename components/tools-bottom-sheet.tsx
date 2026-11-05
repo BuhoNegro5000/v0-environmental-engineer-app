@@ -50,10 +50,10 @@ export const TOOLS_CATALOG: ToolCatalogItem[] = [
   },
   {
     id: "ica",
-    name: "Índice de Calidad del Agua (ICA-NSF)",
+    name: "ICA referencial (basado en NSF)",
     category: "A",
     categoryLabel: "Calculadoras científicas",
-    reference: "NSF / R.J. 056-2018-ANA",
+    reference: "NSF / Brown et al. (1970) — no oficial",
     description: "Evaluación integral de cuerpos de agua superficiales mediante 9 parámetros ponderados.",
     module: "calculator",
     subTab: "wqi",

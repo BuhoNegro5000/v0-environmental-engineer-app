@@ -33,6 +33,7 @@ export function PracticalToolsModule({ initialSubTab }: PracticalToolsModuleProp
   const [reactorType, setReactorType] = useState("activated-sludge")
   const [designFlow, setDesignFlow] = useState("")
   const [influentBOD, setInfluentBOD] = useState("")
+  const [designTemperature, setDesignTemperature] = useState("20")
   const [reactorResults, setReactorResults] = useState<{
     volume: number
     hrt: number
@@ -177,6 +178,7 @@ export function PracticalToolsModule({ initialSubTab }: PracticalToolsModuleProp
       type: reactorType as ReactorType,
       flowM3h: Number.parseFloat(designFlow),
       influentMgL: Number.parseFloat(influentBOD),
+      temperatureC: Number.parseFloat(designTemperature),
     })
     setReactorErrors(r.errors)
     if (!r.ok || !r.value) {
@@ -456,6 +458,12 @@ export function PracticalToolsModule({ initialSubTab }: PracticalToolsModuleProp
                     className="h-12"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="design-temperature">Temperatura de diseño (°C)</Label>
+                <Input id="design-temperature" type="number" step="0.1" value={designTemperature} onChange={(e) => setDesignTemperature(e.target.value)} className="h-12" />
+                {reactorType === "lagoon" && <p className="text-xs text-muted-foreground">La laguna se dimensiona por carga superficial según Mara y esta temperatura.</p>}
               </div>
 
               <Button onClick={calculateReactorSize} className="w-full h-12">Calcular Dimensiones de Biorreactor</Button>

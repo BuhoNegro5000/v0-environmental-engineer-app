@@ -92,10 +92,11 @@ test("Reactor: filtro percolador dimensiona por carga: 60 kg/d ÷ 0.8 = 75 m³",
   close(reactorSizing({ type: "trickling-filter", flowM3h: 10, influentMgL: 250 }).value!.volume, 75)
 })
 
-test("Reactor: laguna, el TRH de 20 d gobierna (4800 m³)", () => {
-  const v = reactorSizing({ type: "lagoon", flowM3h: 10, influentMgL: 250 }).value!
-  close(v.volume, 4800)
-  assert.equal(v.governing, "TRH")
+test("Reactor: laguna facultativa usa carga superficial de Mara y temperatura", () => {
+  const v = reactorSizing({ type: "lagoon", flowM3h: 10, influentMgL: 250, temperatureC: 20 }).value!
+  close(v.volume, (60 / 350) * 10000 * 1.75)
+  assert.equal(v.governing, "carga orgánica")
+  assert.ok(v.formula.includes("λ_s(T)"))
 })
 
 test("Reactor: dimensiones consistentes (L×W×H = V) y UASB advierte sobre DQO", () => {
@@ -142,16 +143,26 @@ test("ICA: agua severamente contaminada → Mala o Pésima (< 45)", () => {
   assert.ok(["Mala", "Pésima"].includes(r.value!.classification))
 })
 
-test("ICA: validación con OD en mg/L y temperatura", () => {
+test("ICA: validación con OD en mg/L, temperatura y altitud", () => {
   const r = calculateWqi({
     doMgL: 7.5,
     temperatureC: 20,
+    altitudeM: 2500,
     ph: 7.3,
     turbidityNtu: 5,
   })
   assert.equal(r.ok, true)
   assert.equal(r.value!.parametersEvaluated, 3)
   assert.ok(r.value!.score > 75)
+})
+
+test("ICA: la presión por altitud aumenta el porcentaje de saturación calculado", () => {
+  const sea = calculateWqi({ doMgL: 8, temperatureC: 20, ph: 7, turbidityNtu: 1 })
+  const high = calculateWqi({ doMgL: 8, temperatureC: 20, altitudeM: 3000, ph: 7, turbidityNtu: 1 })
+  assert.ok(sea.value && high.value)
+  const seaDo = sea.value!.breakdown.find((item) => item.id === "do")!.inputValue
+  const highDo = high.value!.breakdown.find((item) => item.id === "do")!.inputValue
+  assert.ok(highDo > seaDo)
 })
 
 test("ICA: menos de 3 parámetros o valores inválidos → error", () => {
@@ -246,10 +257,12 @@ test("Huella Hídrica: Azul + Verde + Gris con vertimiento contaminante", () => 
   assert.equal(r.ok, true)
   assert.equal(r.value!.blueM3, 800)
   assert.equal(r.value!.greenM3, 200)
-  // Gris: 1000 × (50 - 0) / (10 - 0) = 5000 m³
-  assert.equal(r.value!.greyM3, 5000)
-  assert.equal(r.value!.totalM3, 6000)
-  close(r.value!.percentages.grey, (5000 / 6000) * 100, 0.1)
+  // HH_gris = L / ((Cmax - Cnat) × 10⁻³); L usa L_2 si está configurado.
+  const configuredLoad = Number(process.env.L_2)
+  const expectedGrey = Number.isFinite(configuredLoad) && configuredLoad >= 0 ? configuredLoad / 0.01 : 5000
+  assert.equal(r.value!.greyM3, expectedGrey)
+  assert.equal(r.value!.totalM3, 800 + 200 + expectedGrey)
+  close(r.value!.percentages.grey, (expectedGrey / (1000 + expectedGrey)) * 100, 0.1)
 })
 
 test("Huella Hídrica: efluente cumple norma → Huella Gris = 0", () => {

@@ -169,6 +169,7 @@ export interface ReactorInput {
   type: ReactorType
   flowM3h: number // Caudal de diseño horario (m³/h)
   influentMgL: number // DBO₅ o DQO afluente (mg/L)
+  temperatureC?: number // Temperatura de diseño (°C), requerida para lagunas
 }
 
 export interface ReactorValue {
@@ -187,8 +188,8 @@ export interface ReactorValue {
 const REACTOR_META: CalcMeta = {
   id: "reactor-sizing",
   name: "Dimensionamiento preliminar de biorreactores",
-  formula: "V = máx( Q × TRH ; Q × S₀ / COV )",
-  source: "Metcalf & Eddy (Wastewater Engineering); Norma Peruana OS.090 (Plantas de Tratamiento de Aguas Residuales)",
+  formula: "Laguna facultativa: A = L_DB O / λ_s(T); λ_s(T) = 350 × 1.085^(T−20) kg DBO/ha·d; V = A × profundidad media",
+  source: "Mara, D.D. (1987), Waste Stabilization Ponds: Design Manual for Mediterranean Europe; carga superficial ajustada por temperatura de diseño. Para otros reactores: Metcalf & Eddy y OS.090.",
   units: "m³, horas, kg/m³·d",
   version: ENGINE_VERSION,
 }
@@ -203,14 +204,21 @@ export function reactorSizing(input: ReactorInput): CalcOutcome<ReactorValue> {
   const errors: string[] = []
   if (flowM3h <= 0) errors.push("El caudal de diseño debe ser mayor que 0 m³/h.")
   if (influentMgL <= 0) errors.push(`La concentración afluente de ${p.loadBasis} debe ser mayor que 0 mg/L.`)
+  const temperatureC = input.temperatureC ?? 20
+  if (!isNum(temperatureC) || temperatureC < 5 || temperatureC > 40) {
+    errors.push("La temperatura de diseño debe estar entre 5 y 40 °C.")
+  }
   if (errors.length) return fail(REACTOR_META, errors)
 
   const warnings: string[] = []
   const qd = flowM3h * 24 // m³/d
   const loadKgPerDay = (qd * influentMgL) / 1000
-  const volumeByLoad = loadKgPerDay / p.loadKgM3d
-  const volumeByHrt = p.hrtH === null ? 0 : flowM3h * p.hrtH
-  const governing = volumeByLoad > volumeByHrt ? "carga orgánica" : "TRH"
+  const lagoonSurfaceLoadKgHaD = 350 * Math.pow(1.085, temperatureC - 20)
+  const volumeByLoad = type === "lagoon"
+    ? (loadKgPerDay / lagoonSurfaceLoadKgHaD) * 10000 * 1.75
+    : loadKgPerDay / p.loadKgM3d
+  const volumeByHrt = type === "lagoon" ? 0 : p.hrtH === null ? 0 : flowM3h * p.hrtH
+  const governing = type === "lagoon" ? "carga orgánica" : volumeByLoad > volumeByHrt ? "carga orgánica" : "TRH"
   const volume = Math.max(volumeByLoad, volumeByHrt)
 
   const depth = (p.depthM[0] + p.depthM[1]) / 2
@@ -236,9 +244,11 @@ export function reactorSizing(input: ReactorInput): CalcOutcome<ReactorValue> {
       loadKgPerDay,
       appliedLoadKgM3d: loadKgPerDay / volume,
       formula:
-        p.hrtH === null
-          ? `V = Q × S₀ / COV  (COV = ${p.loadKgM3d} kg ${p.loadBasis}/m³·d)`
-          : `V = máx( Q × TRH ; Q × S₀ / COV )  (TRH = ${p.hrtH} h, COV = ${p.loadKgM3d} kg ${p.loadBasis}/m³·d)`,
+        type === "lagoon"
+          ? `A = L_DB O / λ_s(T); λ_s(T) = ${lagoonSurfaceLoadKgHaD.toFixed(1)} kg DBO/ha·d; V = A × profundidad media (Mara)`
+          : p.hrtH === null
+            ? `V = Q × S₀ / COV  (COV = ${p.loadKgM3d} kg ${p.loadBasis}/m³·d)`
+            : `V = máx( Q × TRH ; Q × S₀ / COV )  (TRH = ${p.hrtH} h, COV = ${p.loadKgM3d} kg ${p.loadBasis}/m³·d)`, 
     },
     errors: [],
     warnings,
@@ -359,6 +369,8 @@ export interface WqiInput {
   doSaturationPercent?: number // % de saturación de Oxígeno Disuelto
   doMgL?: number // OD en mg/L (si no se dispone de % de saturación)
   temperatureC?: number // Temperatura del agua en °C (por defecto 20 °C)
+  altitudeM?: number // Altitud GPS o manual (m)
+  pressureAtm?: number // Presión barométrica absoluta (atm)
   ph?: number // Unidades de pH (0 - 14)
   turbidityNtu?: number // Turbidez en NTU
   bod5MgL?: number // DBO₅ en mg/L
@@ -389,9 +401,9 @@ export interface WqiValue {
 
 const WQI_META: CalcMeta = {
   id: "wqi-nsf",
-  name: "Índice de Calidad del Agua (ICA-NSF / Brown et al.)",
+  name: "ICA referencial (basado en NSF)",
   formula: "ICA = ∑ (wᵢ × qᵢ) / ∑ wᵢ",
-  source: "National Sanitation Foundation (NSF WQI); Brown et al. (1970); adaptado por la Autoridad Nacional del Agua (ANA, R.J. N° 056-2018-ANA)",
+  source: "National Sanitation Foundation (NSF WQI); Brown et al. (1970). No equivale al ICA-PE oficial.",
   units: "Puntos (escala 0 - 100)",
   version: ENGINE_VERSION,
 }
@@ -479,8 +491,16 @@ export function calculateWqi(input: WqiInput): CalcOutcome<WqiValue> {
   let doSat = input.doSaturationPercent
   if (!isNum(doSat) && isNum(input.doMgL)) {
     const temp = isNum(input.temperatureC) ? input.temperatureC : 20
-    // Saturación a nivel del mar según fórmula estándar de Benson-Krause
-    const cs = 14.652 - 0.41022 * temp + 0.007991 * temp * temp - 0.000077774 * Math.pow(temp, 3)
+    const altitude = isNum(input.altitudeM) ? input.altitudeM : 0
+    const envPressure = Number(process.env.P_2)
+    const pressureAtm = isNum(input.pressureAtm) && input.pressureAtm > 0
+      ? input.pressureAtm
+      : altitude !== 0
+        ? Math.pow(1 - 2.25577e-5 * altitude, 5.25588)
+        : isNum(envPressure) && envPressure > 0 ? envPressure : 1
+    // Cs corregida por presión barométrica: solubilidad al nivel del mar × P/P0.
+    const csSeaLevel = 14.652 - 0.41022 * temp + 0.007991 * temp * temp - 0.000077774 * Math.pow(temp, 3)
+    const cs = csSeaLevel * pressureAtm
     doSat = (input.doMgL / cs) * 100
   }
 
@@ -780,14 +800,14 @@ export function convertGasConcentration(input: GasConversionInput): CalcOutcome<
 
 export type GridRegion = "peru_sein" | "mexico_sen" | "chile_sen" | "colombia_sin" | "global_average" | "usa_average" | "custom"
 
-export const GRID_EMISSION_FACTORS: Record<GridRegion, { name: string; factorKgKwh: number }> = {
-  peru_sein: { name: "Perú - SEIN (MINAM / COES 2023)", factorKgKwh: 0.212 },
-  mexico_sen: { name: "México - SEN (CRE 2023)", factorKgKwh: 0.438 },
-  chile_sen: { name: "Chile - SEN (CNE 2023)", factorKgKwh: 0.290 },
-  colombia_sin: { name: "Colombia - SIN (UPME 2023)", factorKgKwh: 0.165 },
-  global_average: { name: "Promedio Global (IEA)", factorKgKwh: 0.475 },
-  usa_average: { name: "Estados Unidos - eGRID", factorKgKwh: 0.385 },
-  custom: { name: "Personalizado", factorKgKwh: 0.400 },
+export const GRID_EMISSION_FACTORS: Record<GridRegion, { name: string; factorKgKwh: number; year: number; source: string }> = {
+  peru_sein: { name: "Perú - SEIN", factorKgKwh: 0.212, year: 2023, source: "MINAM / COES" },
+  mexico_sen: { name: "México - SEN", factorKgKwh: 0.438, year: 2023, source: "CRE" },
+  chile_sen: { name: "Chile - SEN", factorKgKwh: 0.290, year: 2023, source: "CNE" },
+  colombia_sin: { name: "Colombia - SIN", factorKgKwh: 0.165, year: 2023, source: "UPME" },
+  global_average: { name: "Promedio Global", factorKgKwh: 0.475, year: 2023, source: "IEA" },
+  usa_average: { name: "Estados Unidos - eGRID", factorKgKwh: 0.385, year: 2023, source: "EPA eGRID" },
+  custom: { name: "Personalizado", factorKgKwh: 0.400, year: new Date().getFullYear(), source: "Usuario" },
 }
 
 export interface CarbonFootprintInput {
@@ -800,6 +820,8 @@ export interface CarbonFootprintInput {
   electricityKwh?: number
   gridRegion?: GridRegion
   customGridFactor?: number
+  customGridYear?: number
+  customGridSource?: string
   // Alcance 3: Otras Emisiones Indirectas
   vehicleKm?: number // Transporte en auto (promedio 0.171 kg CO₂e/km)
   busKm?: number // Transporte en autobús (0.089 kg CO₂e/km-pasajero)
@@ -814,6 +836,10 @@ export interface CarbonFootprintValue {
   scope2Kg: number
   scope3Kg: number
   percentages: { scope1: number; scope2: number; scope3: number }
+  gridFactorKgKwh: number
+  gridFactorYear: number
+  gridFactorSource: string
+  treesNeededOffset: number
 }
 
 const CARBON_META: CalcMeta = {
@@ -845,12 +871,23 @@ export function calculateCarbonFootprint(input: CarbonFootprintInput): CalcOutco
 
   // Alcance 2
   let gridFactor = 0.212
+  let gridYear = 2023
+  let gridSource = "MINAM / COES"
   if (input.gridRegion === "custom") {
     gridFactor = isNum(input.customGridFactor) && input.customGridFactor >= 0 ? input.customGridFactor : 0.4
+    gridYear = isNum(input.customGridYear) ? input.customGridYear : new Date().getFullYear()
+    gridSource = input.customGridSource?.trim() || "Usuario"
   } else if (input.gridRegion && GRID_EMISSION_FACTORS[input.gridRegion]) {
-    gridFactor = GRID_EMISSION_FACTORS[input.gridRegion].factorKgKwh
+    const grid = GRID_EMISSION_FACTORS[input.gridRegion]
+    gridFactor = grid.factorKgKwh
+    gridYear = grid.year
+    gridSource = grid.source
   }
   const scope2 = elec * gridFactor
+  const warnings: string[] = []
+  if (new Date().getFullYear() - gridYear > 1) {
+    warnings.push(`El factor ${gridSource} (${gridYear}) tiene más de 12 meses; verifique y actualice la fuente.`)
+  }
 
   // Alcance 3
   const scope3 = vKm * 0.171 + bKm * 0.089 + fKm * 0.195 + waste * 0.46
@@ -875,9 +912,13 @@ export function calculateCarbonFootprint(input: CarbonFootprintInput): CalcOutco
         scope2: Math.round(p2 * 10) / 10,
         scope3: Math.round(p3 * 10) / 10,
       },
+      gridFactorKgKwh: gridFactor,
+      gridFactorYear: gridYear,
+      gridFactorSource: gridSource,
+      treesNeededOffset: Math.ceil(totalKg / 21.77),
     },
     errors: [],
-    warnings: [],
+    warnings,
     meta: CARBON_META,
   }
 }
@@ -947,10 +988,14 @@ export function calculateWaterFootprint(input: WaterFootprintInput): CalcOutcome
 
     if (errors.length === 0) {
       if (cEff > cMax) {
-        // Carga contaminante neta: L = Q × (C_eff - C_nat) en g -> dividir entre 1000 para kg
-        const loadKg = (qEff * Math.max(0, cEff - cNat)) / 1000
-        // Volumen de dilución: V_gris = (Q × (C_eff - C_nat)) / (C_max - C_nat)
-        greyTotal = (qEff * (cEff - cNat)) / (cMax - cNat)
+        // L es la carga contaminante crítica (kg) configurada por el proyecto.
+        // Si no existe configuración, se estima desde Q × (C_eff − C_nat).
+        const configuredLoadKg = Number(process.env.L_2)
+        const loadKg = isNum(configuredLoadKg) && configuredLoadKg >= 0
+          ? configuredLoadKg
+          : (qEff * Math.max(0, cEff - cNat)) / 1000
+        // Conversión mg/L → kg/m³: HH_gris = L / [(Cmax − Cnat) × 10⁻³]
+        greyTotal = loadKg / ((cMax - cNat) / 1000)
         greyDetails = {
           criticalLoadKg: Math.round(loadKg * 10) / 10,
           dilutionFactor: Math.round((greyTotal / qEff) * 10) / 10,

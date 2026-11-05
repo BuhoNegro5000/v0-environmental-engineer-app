@@ -29,7 +29,11 @@ export function AdvancedToolsModule() {
 
   // 1. Huella de Carbono
   const [gridRegion, setGridRegion] = useState<GridRegion>("peru_sein")
+  const [customGridFactor, setCustomGridFactor] = useState("0.212")
+  const [customGridYear, setCustomGridYear] = useState(String(new Date().getFullYear()))
+  const [customGridSource, setCustomGridSource] = useState("Usuario")
   const [carbonResult, setCarbonResult] = useState<CarbonFootprintValue | null>(null)
+  const [carbonWarnings, setCarbonWarnings] = useState<string[]>([])
 
   // 2. Huella Hídrica (WFN)
   const [waterResult, setWaterResult] = useState<WaterFootprintValue | null>(null)
@@ -61,10 +65,14 @@ export function AdvancedToolsModule() {
       lpgKg,
       electricityKwh,
       gridRegion,
+      customGridFactor: Number.parseFloat(customGridFactor),
+      customGridYear: Number.parseInt(customGridYear, 10),
+      customGridSource,
       vehicleKm,
       wasteLandfillKg,
     })
 
+    setCarbonWarnings(r.warnings)
     if (r.ok && r.value) {
       setCarbonResult(r.value)
     }
@@ -216,10 +224,17 @@ export function AdvancedToolsModule() {
                     <SelectTrigger className="h-12"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {Object.entries(GRID_EMISSION_FACTORS).map(([key, item]) => (
-                        <SelectItem key={key} value={key}>{item.name} ({item.factorKgKwh} kg CO₂e/kWh)</SelectItem>
+                        <SelectItem key={key} value={key}>{item.name} ({item.factorKgKwh} kg CO₂e/kWh, {item.year})</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {gridRegion === "custom" && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                      <Input aria-label="Factor SEIN personalizado" type="number" step="0.001" value={customGridFactor} onChange={(e) => setCustomGridFactor(e.target.value)} placeholder="kg CO₂e/kWh" />
+                      <Input aria-label="Año del factor" type="number" value={customGridYear} onChange={(e) => setCustomGridYear(e.target.value)} placeholder="Año" />
+                      <Input aria-label="Fuente del factor" value={customGridSource} onChange={(e) => setCustomGridSource(e.target.value)} placeholder="Fuente" />
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-3 bg-muted/40 rounded-lg space-y-3">
@@ -266,6 +281,13 @@ export function AdvancedToolsModule() {
                   Calcular Huella de Carbono (GHG Protocol)
                 </Button>
 
+                {carbonWarnings.map((warning) => (
+                  <Alert key={warning} className="border-yellow-200 bg-yellow-50">
+                    <AlertTriangle className="h-4 w-4 text-yellow-700" />
+                    <AlertDescription className="text-xs text-yellow-900">{warning}</AlertDescription>
+                  </Alert>
+                ))}
+
                 {carbonResult && (
                   <div className="mt-4 p-4 rounded-lg border bg-card space-y-4">
                     <div className="flex items-center justify-between border-b pb-3">
@@ -275,6 +297,7 @@ export function AdvancedToolsModule() {
                           {carbonResult.totalTonCo2e} <span className="text-base font-normal text-muted-foreground">tCO₂e</span>
                         </p>
                         <p className="text-xs text-muted-foreground">{carbonResult.totalKgCo2e.toLocaleString()} kg CO₂e</p>
+                        <p className="text-xs text-muted-foreground">Factor red: {carbonResult.gridFactorKgKwh} kg CO₂e/kWh · {carbonResult.gridFactorYear} · fuente: {carbonResult.gridFactorSource}</p>
                       </div>
                     </div>
 
@@ -320,7 +343,7 @@ export function AdvancedToolsModule() {
                 <AlertDescription className="text-xs text-blue-800 space-y-1">
                   <p><strong>Huella Azul:</strong> Consumo neto de agua dulce superficial o subterránea evaporada o incorporada.</p>
                   <p><strong>Huella Verde:</strong> Volumen de agua de lluvia evapotranspirada por vegetación/cultivos.</p>
-                  <p><strong>Huella Gris:</strong> $V_{'{'}gris{'}'} = Q_{'{'}efl{'}'} \times (C_{'{'}efl{'}'} - C_{'{'}nat{'}'}) / (C_{'{'}máx{'}'} - C_{'{'}nat{'}'})$ según estándar ECA de la cuenca receptora.</p>
+                  <p><strong>Huella Gris:</strong> HH_gris = L / (Cmax − Cnat), usando la carga L configurada en el proyecto y concentraciones en mg/L.</p>
                 </AlertDescription>
               </Alert>
 

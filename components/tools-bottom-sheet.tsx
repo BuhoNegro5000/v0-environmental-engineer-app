@@ -195,7 +195,7 @@ export const TOOLS_CATALOG: ToolCatalogItem[] = [
     categoryLabel: "Herramientas de campo",
     reference: "Métodos de Aforo USBR / Manning",
     description: "Cálculo de caudal mediante vertederos Thomson (triangular), rectangular, Manning y flotadores.",
-    module: "tools",
+    module: "flow_measurement",
     subTab: "flow",
     tags: ["aforo", "caudal", "vertedero", "manning", "flotador", "litros por segundo"],
   },
@@ -472,7 +472,7 @@ export function ToolsBottomSheet({ open, onOpenChange, onSelectTool }: ToolsBott
           ) : (
             filteredTools.map((tool) => {
               const favorited = isFavorite(tool.id)
-              const isComingSoon = ["flow_measurement", "disinfection_ct", "coagulation", "air_dispersion"].includes(tool.id)
+              const isComingSoon = ["disinfection_ct", "coagulation", "air_dispersion"].includes(tool.id)
               return (
                 <div
                   key={tool.id}

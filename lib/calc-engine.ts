@@ -247,7 +247,112 @@ export function reactorSizing(input: ReactorInput): CalcOutcome<ReactorValue> {
 }
 
 /* ------------------------------------------------------------------ */
-/* 4. Índice de Calidad del Agua (ICA-NSF / ICA-PE)                   */
+/* 4. Aforos y medición de caudales                                   */
+/* ------------------------------------------------------------------ */
+
+const FLOW_META_VERSION = ENGINE_VERSION
+
+export interface WeirInput { headM: number }
+export interface WeirValue { flowM3s: number }
+
+const TRIANGULAR_WEIR_META: CalcMeta = {
+  id: "triangular-weir-90",
+  name: "Vertedero triangular de 90° (Thomson)",
+  formula: "Q = 1.4 × H²·⁵",
+  source: "Fórmula de Thomson para vertedero triangular de 90°",
+  units: "Q: m³/s; H: m",
+  version: FLOW_META_VERSION,
+}
+
+export function triangularWeir90(input: WeirInput): CalcOutcome<WeirValue> {
+  if (!isNum(input.headM) || input.headM <= 0) return fail(TRIANGULAR_WEIR_META, ["La carga H debe ser un número mayor que 0 m."])
+  const warnings: string[] = []
+  if (input.headM < 0.06 || input.headM > 0.38) warnings.push("H está fuera del rango de validez recomendado: 0.06 a 0.38 m.")
+  return { ok: true, value: { flowM3s: 1.4 * input.headM ** 2.5 }, errors: [], warnings, meta: TRIANGULAR_WEIR_META }
+}
+
+export interface RectangularWeirInput { lengthM: number; headM: number; contractions?: number }
+const RECTANGULAR_WEIR_META: CalcMeta = {
+  id: "rectangular-weir-francis",
+  name: "Vertedero rectangular (Francis)",
+  formula: "Q = 1.84 × (L − 0.1 × n × H) × H¹·⁵",
+  source: "Fórmula de Francis para vertedero rectangular con contracciones",
+  units: "Q: m³/s; L, H: m; n: contracciones",
+  version: FLOW_META_VERSION,
+}
+export function rectangularWeirFrancis(input: RectangularWeirInput): CalcOutcome<WeirValue> {
+  const n = input.contractions ?? 0
+  if (![input.lengthM, input.headM, n].every(isNum) || input.lengthM <= 0 || input.headM <= 0 || n < 0) {
+    return fail(RECTANGULAR_WEIR_META, ["L, H y n deben ser números válidos; L y H deben ser mayores que 0 y n no puede ser negativo."])
+  }
+  const effectiveLength = input.lengthM - 0.1 * n * input.headM
+  if (effectiveLength <= 0) return fail(RECTANGULAR_WEIR_META, ["La longitud efectiva L − 0.1 × n × H debe ser mayor que 0."])
+  return { ok: true, value: { flowM3s: 1.84 * effectiveLength * input.headM ** 1.5 }, errors: [], warnings: [], meta: RECTANGULAR_WEIR_META }
+}
+
+export type ManningSection = "rectangular" | "trapezoidal" | "circular"
+export interface ManningInput {
+  section: ManningSection
+  roughnessN: number
+  slope: number
+  widthM?: number
+  depthM?: number
+  sideSlope?: number
+  diameterM?: number
+  fillingRatio?: number
+}
+export interface ManningValue { flowM3s: number; areaM2: number; hydraulicRadiusM: number; wettedPerimeterM: number }
+const MANNING_META: CalcMeta = {
+  id: "manning",
+  name: "Caudal por Manning",
+  formula: "Q = (1/n) × A × R^(2/3) × S^(1/2)",
+  source: "Ecuación de Manning",
+  units: "Q: m³/s; A: m²; R: m; S: m/m",
+  version: FLOW_META_VERSION,
+}
+export const MANNING_ROUGHNESS: Record<string, number> = { hormigon: 0.013, tierra: 0.025, grava: 0.030, natural: 0.035 }
+export function manning(input: ManningInput): CalcOutcome<ManningValue> {
+  if (!isNum(input.roughnessN) || !isNum(input.slope) || input.roughnessN <= 0 || input.slope <= 0) return fail(MANNING_META, ["n y S deben ser números mayores que 0."])
+  let area = 0, perimeter = 0
+  if (input.section === "rectangular") {
+    if (!isNum(input.widthM) || !isNum(input.depthM) || input.widthM <= 0 || input.depthM <= 0) return fail(MANNING_META, ["La sección rectangular requiere ancho y profundidad mayores que 0."])
+    area = input.widthM * input.depthM; perimeter = input.widthM + 2 * input.depthM
+  } else if (input.section === "trapezoidal") {
+    if (!isNum(input.widthM) || !isNum(input.depthM) || !isNum(input.sideSlope) || input.widthM <= 0 || input.depthM <= 0 || input.sideSlope < 0) return fail(MANNING_META, ["La sección trapezoidal requiere B, y y z válidos."])
+    area = input.depthM * (input.widthM + input.sideSlope * input.depthM); perimeter = input.widthM + 2 * input.depthM * Math.sqrt(1 + input.sideSlope ** 2)
+  } else {
+    if (!isNum(input.diameterM) || !isNum(input.fillingRatio) || input.diameterM <= 0 || input.fillingRatio <= 0 || input.fillingRatio > 1) return fail(MANNING_META, ["La sección circular requiere diámetro y llenado entre 0 y 1."])
+    const radius = input.diameterM / 2
+    const depth = input.diameterM * input.fillingRatio
+    const theta = 2 * Math.acos((radius - depth) / radius)
+    area = (radius ** 2 / 2) * (theta - Math.sin(theta)); perimeter = radius * theta
+  }
+  const hydraulicRadius = area / perimeter
+  return { ok: true, value: { flowM3s: (area * hydraulicRadius ** (2 / 3) * Math.sqrt(input.slope)) / input.roughnessN, areaM2: area, hydraulicRadiusM: hydraulicRadius, wettedPerimeterM: perimeter }, errors: [], warnings: [], meta: MANNING_META }
+}
+
+export interface FloatMethodInput { correctionFactor: number; distanceM: number; timeS: number }
+const FLOAT_META: CalcMeta = { id: "float-method", name: "Método de flotadores", formula: "V = factor × distancia / tiempo", source: "Método de flotadores", units: "V: m/s; distancia: m; tiempo: s", version: FLOW_META_VERSION }
+export function floatVelocity(input: FloatMethodInput): CalcOutcome<{ velocityMs: number }> {
+  if (![input.correctionFactor, input.distanceM, input.timeS].every(isNum) || input.correctionFactor <= 0 || input.distanceM <= 0 || input.timeS <= 0) return fail(FLOAT_META, ["Factor, distancia y tiempo deben ser mayores que 0."])
+  return { ok: true, value: { velocityMs: input.correctionFactor * input.distanceM / input.timeS }, errors: [], warnings: [], meta: FLOAT_META }
+}
+
+export interface CurrentMeterVertical { distanceM: number; depthM: number; velocityMs: number; velocityAt?: "0.6" | "0.2-0.8" }
+const AREA_VELOCITY_META: CalcMeta = { id: "area-velocity", name: "Velocidad-área con correntómetro", formula: "Q = Σ (ancho de sección × profundidad × velocidad media)", source: "Método velocidad-área", units: "Q: m³/s; velocidades: m/s; dimensiones: m", version: FLOW_META_VERSION }
+export function areaVelocityCurrentMeter(input: { verticals: CurrentMeterVertical[] }): CalcOutcome<{ flowM3s: number; sections: { areaM2: number; velocityMs: number; flowM3s: number }[] }> {
+  if (!Array.isArray(input.verticals) || input.verticals.length < 2) return fail(AREA_VELOCITY_META, ["Ingrese al menos dos verticales."])
+  const errors: string[] = []
+  const sections = input.verticals.map((v, index) => {
+    if (![v.distanceM, v.depthM, v.velocityMs].every(isNum) || v.distanceM <= 0 || v.depthM <= 0 || v.velocityMs < 0) errors.push(`Vertical ${index + 1}: distancia, profundidad y velocidad no son válidas.`)
+    return { areaM2: v.distanceM * v.depthM, velocityMs: v.velocityMs, flowM3s: v.distanceM * v.depthM * v.velocityMs }
+  })
+  if (errors.length) return fail(AREA_VELOCITY_META, errors)
+  return { ok: true, value: { flowM3s: sections.reduce((sum, section) => sum + section.flowM3s, 0), sections }, errors: [], warnings: [], meta: AREA_VELOCITY_META }
+}
+
+/* ------------------------------------------------------------------ */
+/* 5. Índice de Calidad del Agua (ICA-NSF / ICA-PE)                   */
 /* ------------------------------------------------------------------ */
 
 export interface WqiInput {

@@ -29,6 +29,7 @@ import { CalculatorModule } from "@/components/calculator-module"
 import { ConverterModule } from "@/components/converter-module"
 import { MeasurementModule } from "@/components/measurement-module"
 import { PracticalToolsModule } from "@/components/practical-tools-module"
+import { FlowMeasurementModule } from "@/components/flow-measurement-module"
 import { FieldCameraModal } from "@/components/field-camera-modal"
 import { QuickNoteModal } from "@/components/quick-note-modal"
 import { QuickInsituModal } from "@/components/quick-insitu-modal"
@@ -83,7 +84,9 @@ export function MainApp() {
       case "advanced":
         return "Huellas Ambientales & Remediación"
       case "tools":
-        return "Herramientas de Campo & Aforos"
+        return "Herramientas de Campo"
+      case "flow_measurement":
+        return "Aforo y Medición de Caudales"
       case "ai":
         return "Asistente IA Green Owl"
       case "resources":
@@ -216,6 +219,7 @@ export function MainApp() {
             {activeDirectModule === "measurement" && <MeasurementModule initialSubTab={subTab} />}
             {activeDirectModule === "advanced" && <AdvancedToolsModule />}
             {activeDirectModule === "tools" && <PracticalToolsModule initialSubTab={subTab} />}
+            {activeDirectModule === "flow_measurement" && <FlowMeasurementModule />}
             {activeDirectModule === "ai" && <AIAssistantModule />}
             {activeDirectModule === "charts" && <ChartsPanel />}
             {activeDirectModule === "notes" && <NotesModule />}

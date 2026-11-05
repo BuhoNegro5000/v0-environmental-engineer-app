@@ -9,6 +9,11 @@ import {
   calculateCarbonFootprint,
   calculateWaterFootprint,
   calculateSoilRemediation,
+  triangularWeir90,
+  rectangularWeirFrancis,
+  manning,
+  floatVelocity,
+  areaVelocityCurrentMeter,
 } from "./calc-engine.ts"
 
 const close = (a: number, b: number, eps = 1e-4) => assert.ok(Math.abs(a - b) < eps, `${a} ≈ ${b} (diff: ${Math.abs(a - b)})`)
@@ -287,4 +292,34 @@ test("Remediación de Suelos: biopilas con cálculo de nutrientes C:N:P", () => 
   assert.ok(r.value!.nutrientRequirementsKg)
   close(r.value!.nutrientRequirementsKg!.nitrogenKg, 459, 1)
   close(r.value!.nutrientRequirementsKg!.phosphorusKg, 45.9, 0.5)
+})
+
+/* ------------------------------------------------------------------ */
+/* 9. Aforos                                                         */
+/* ------------------------------------------------------------------ */
+test("Aforo: Thomson 90° calcula Q y advierte fuera de rango", () => {
+  const valid = triangularWeir90({ headM: 0.1 })
+  assert.equal(valid.ok, true)
+  close(valid.value!.flowM3s, 1.4 * 0.1 ** 2.5)
+  assert.equal(triangularWeir90({ headM: 0.05 }).warnings.length, 1)
+})
+
+test("Aforo: rectangular Francis aplica contracciones", () => {
+  const r = rectangularWeirFrancis({ lengthM: 1, headM: 0.1, contractions: 1 })
+  assert.equal(r.ok, true)
+  close(r.value!.flowM3s, 1.84 * (1 - 0.1 * 1 * 0.1) * 0.1 ** 1.5)
+})
+
+test("Aforo: Manning rectangular y validación", () => {
+  const r = manning({ section: "rectangular", roughnessN: 0.013, slope: 0.001, widthM: 1, depthM: 0.3 })
+  assert.equal(r.ok, true)
+  assert.ok(r.value!.flowM3s > 0)
+  assert.equal(manning({ section: "rectangular", roughnessN: 0, slope: 0.001, widthM: 1, depthM: 0.3 }).ok, false)
+})
+
+test("Aforo: flotadores usa factor editable y velocidad-área suma secciones", () => {
+  close(floatVelocity({ correctionFactor: 0.85, distanceM: 10, timeS: 20 }).value!.velocityMs, 0.425)
+  const r = areaVelocityCurrentMeter({ verticals: [{ distanceM: 1, depthM: 0.3, velocityMs: 0.4 }, { distanceM: 1, depthM: 0.3, velocityMs: 0.2 }] })
+  assert.equal(r.ok, true)
+  close(r.value!.flowM3s, 0.18)
 })

@@ -709,7 +709,6 @@ export interface CarbonFootprintValue {
   scope2Kg: number
   scope3Kg: number
   percentages: { scope1: number; scope2: number; scope3: number }
-  treesNeededOffset: number // Árboles promedio para compensar (1 árbol absorbe ~22 kg CO₂/año)
 }
 
 const CARBON_META: CalcMeta = {
@@ -758,9 +757,6 @@ export function calculateCarbonFootprint(input: CarbonFootprintInput): CalcOutco
   const p2 = totalKg > 0 ? (scope2 / totalKg) * 100 : 0
   const p3 = totalKg > 0 ? (scope3 / totalKg) * 100 : 0
 
-  // 1 árbol maduro fija aprox. 22 kg CO₂/año
-  const treesNeeded = Math.ceil(totalKg / 22)
-
   return {
     ok: true,
     value: {
@@ -774,7 +770,6 @@ export function calculateCarbonFootprint(input: CarbonFootprintInput): CalcOutco
         scope2: Math.round(p2 * 10) / 10,
         scope3: Math.round(p3 * 10) / 10,
       },
-      treesNeededOffset: treesNeeded,
     },
     errors: [],
     warnings: [],

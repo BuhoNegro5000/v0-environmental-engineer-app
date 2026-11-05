@@ -79,7 +79,7 @@ export const TOOLS_CATALOG: ToolCatalogItem[] = [
     categoryLabel: "Agua y aguas residuales",
     reference: "Metcalf & Eddy / RAS D.S. 003-2010",
     description: "Dimensionamiento por TRH y carga volumétrica para Lodos Activados, Filtros, Lagunas y UASB.",
-    module: "measurement",
+    module: "tools",
     subTab: "reactors",
     tags: ["reactor", "ptar", "lodos activados", "uasb", "trh", "dimensionamiento"],
   },
@@ -185,7 +185,7 @@ export const TOOLS_CATALOG: ToolCatalogItem[] = [
     reference: "Protocolo Nacional de Monitoreo ANA/MINAM",
     description: "Bitácora rápida para registrar pH, Conductividad Eléctrica, Turbidez, OD y Temperatura de campo.",
     module: "measurement",
-    subTab: "measurements",
+    subTab: "field",
     tags: ["campo", "medicion", "ph", "conductividad", "od", "turbidez", "in situ"],
   },
   {
@@ -472,20 +472,28 @@ export function ToolsBottomSheet({ open, onOpenChange, onSelectTool }: ToolsBott
           ) : (
             filteredTools.map((tool) => {
               const favorited = isFavorite(tool.id)
+              const isComingSoon = ["flow_measurement", "disinfection_ct", "coagulation", "air_dispersion"].includes(tool.id)
               return (
                 <div
                   key={tool.id}
                   onClick={() => {
+                    if (isComingSoon) return
                     onSelectTool(tool.module, tool.subTab)
                     onOpenChange(false)
                   }}
-                  className="group p-3.5 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-[#F4F8F5]/60 dark:bg-[#0B1C1B]/60 hover:bg-white dark:hover:bg-[#112827] hover:border-[#008F72]/50 hover:shadow-md transition-all cursor-pointer flex items-start justify-between gap-3"
+                  className={`group p-3.5 rounded-xl border border-[#DCE7E1] dark:border-[#1E4644] bg-[#F4F8F5]/60 dark:bg-[#0B1C1B]/60 transition-all flex items-start justify-between gap-3 ${isComingSoon ? "cursor-not-allowed opacity-70" : "cursor-pointer hover:bg-white dark:hover:bg-[#112827] hover:border-[#008F72]/50 hover:shadow-md"}`}
+
                 >
                   <div className="space-y-1 flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold text-sm text-[#253533] dark:text-[#EAF2EE] group-hover:text-[#008F72] transition-colors leading-snug">
                         {tool.name}
                       </span>
+                      {isComingSoon && (
+                        <Badge variant="outline" className="text-[10px] border-[#D99527] text-[#A86612] dark:text-[#F2BE63] px-2 py-0.5">
+                          Próximamente
+                        </Badge>
+                      )}
                       <Badge
                         variant="secondary"
                         className="text-[10px] bg-[#BCE8D9]/40 dark:bg-[#008F72]/30 text-[#103B3A] dark:text-[#BCE8D9] font-mono border-0 px-2 py-0.5"

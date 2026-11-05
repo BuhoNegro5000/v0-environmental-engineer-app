@@ -165,7 +165,7 @@ export function HomeScreen({
       id: "hydraulics",
       title: "AFOROS & CAMPO",
       tag: "Standard Methods",
-      desc: "Vertedero Thomson 90°, canales Manning, test de jarras y valor C·t",
+      desc: "Costos, Reactores, Dosificación",
       icon: Wrench,
       color: "border-[#BCE8D9] text-[#BCE8D9]",
       badge: "Hidráulica",

@@ -13,8 +13,13 @@ import { Calculator, Beaker, Sun, Leaf, Droplets, Info } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { MethodologiesModule } from "@/components/methodologies-module"
 
-export function PracticalToolsModule() {
+interface PracticalToolsModuleProps {
+  initialSubTab?: string
+}
+
+export function PracticalToolsModule({ initialSubTab }: PracticalToolsModuleProps) {
   const { language } = useI18n()
+  const initialTab = initialSubTab === "reactors" ? "reactor" : "treatment-costs"
 
   const [treatmentSystem, setTreatmentSystem] = useState("wwtp-biological")
   const [flowRate, setFlowRate] = useState("")
@@ -279,7 +284,7 @@ export function PracticalToolsModule() {
         </p>
       </div>
 
-      <Tabs defaultValue="treatment-costs" className="w-full">
+      <Tabs value={initialTab} className="w-full">
         <TabsList className="grid w-full grid-cols-5 h-auto gap-1 p-1">
           <TabsTrigger value="treatment-costs" className="min-h-[44px] text-xs">
             <Calculator className="h-4 w-4 mr-1" />

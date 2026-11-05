@@ -276,11 +276,6 @@ export function AdvancedToolsModule() {
                         </p>
                         <p className="text-xs text-muted-foreground">{carbonResult.totalKgCo2e.toLocaleString()} kg CO₂e</p>
                       </div>
-                      <div className="text-right">
-                        <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                          ~{carbonResult.treesNeededOffset} árboles/año para compensar
-                        </span>
-                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">

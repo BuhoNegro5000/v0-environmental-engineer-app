@@ -213,9 +213,9 @@ export function MainApp() {
           <div className="pb-28">
             {activeDirectModule === "calculator" && <CalculatorModule />}
             {activeDirectModule === "converter" && <ConverterModule />}
-            {activeDirectModule === "measurement" && <MeasurementModule />}
+            {activeDirectModule === "measurement" && <MeasurementModule initialSubTab={subTab} />}
             {activeDirectModule === "advanced" && <AdvancedToolsModule />}
-            {activeDirectModule === "tools" && <PracticalToolsModule />}
+            {activeDirectModule === "tools" && <PracticalToolsModule initialSubTab={subTab} />}
             {activeDirectModule === "ai" && <AIAssistantModule />}
             {activeDirectModule === "charts" && <ChartsPanel />}
             {activeDirectModule === "notes" && <NotesModule />}

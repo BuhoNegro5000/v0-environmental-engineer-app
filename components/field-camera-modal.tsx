@@ -24,8 +24,8 @@ export interface StampedPhoto {
   station: string
   matrix: string
   coords: {
-    lat: number
-    lng: number
+    lat: number | null
+    lng: number | null
     altitude: number | null
     accuracy: number | null
     utmZone?: string
@@ -53,18 +53,7 @@ export function FieldCameraModal({
   const [cameraError, setCameraError] = useState<string | null>(null)
   const [stationName, setStationName] = useState(currentStation)
   const [selectedMatrix, setSelectedMatrix] = useState("Agua / Efluente")
-  const [geo, setGeo] = useState<GeoLocationState>({
-    latitude: -12.046374,
-    longitude: -77.042793,
-    altitude: 154,
-    accuracy: 4.2,
-    heading: 45,
-    speed: null,
-    timestamp: Date.now(),
-    utmZone: "18S",
-    utmEasting: 277618,
-    utmNorthing: 8667491,
-  })
+  const [geo, setGeo] = useState<GeoLocationState | null>(null)
   const [capturedPhoto, setCapturedPhoto] = useState<StampedPhoto | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -177,7 +166,7 @@ export function FieldCameraModal({
     height: number,
     station: string,
     matrix: string,
-    geoState: GeoLocationState,
+    geoState: GeoLocationState | null,
   ) => {
     const bannerHeight = Math.max(90, Math.round(height * 0.14))
     const yTop = height - bannerHeight
@@ -215,11 +204,10 @@ export function FieldCameraModal({
     const row2Y = yTop + bannerHeight * 0.58
     ctx.font = `${fontSizeSecondary}px monospace`
     ctx.fillStyle = "#00E5FF" // Cryo Cyan
-    const utmText = geoState.utmZone
-      ? `UTM: ${geoState.utmZone} ${geoState.utmEasting}m E ${geoState.utmNorthing}m N`
-      : ""
-    const dmsText = formatDms(geoState.latitude, geoState.longitude)
-    ctx.fillText(`${dmsText}  |  ${utmText}`, paddingX, row2Y)
+    const gpsText = geoState
+      ? `${formatDms(geoState.latitude, geoState.longitude)}  |  UTM: ${geoState.utmZone} ${geoState.utmEasting}m E ${geoState.utmNorthing}m N`
+      : "SIN GPS"
+    ctx.fillText(gpsText, paddingX, row2Y)
 
     // Fila 3: Fecha / Hora ISO + Precisión + Altitud
     const row3Y = yTop + bannerHeight * 0.84
@@ -229,8 +217,8 @@ export function FieldCameraModal({
       dateStyle: "short",
       timeStyle: "medium",
     })
-    const altText = geoState.altitude ? `ALT: ${geoState.altitude} msnm` : "ALT: N/D"
-    const accText = geoState.accuracy ? `PREC: ±${geoState.accuracy}m` : "GPS REF"
+    const altText = geoState?.altitude ? `ALT: ${geoState.altitude} msnm` : "ALT: N/D"
+    const accText = geoState?.accuracy ? `PREC: ±${geoState.accuracy}m` : "GPS: N/D"
     ctx.fillText(`FECHA: ${nowIso} (UTC-5)  •  ${accText}  •  ${altText}`, paddingX, row3Y)
   }
 
@@ -267,13 +255,13 @@ export function FieldCameraModal({
       station: stationName,
       matrix: selectedMatrix,
       coords: {
-        lat: geo.latitude,
-        lng: geo.longitude,
-        altitude: geo.altitude,
-        accuracy: geo.accuracy,
-        utmZone: geo.utmZone,
-        utmEasting: geo.utmEasting,
-        utmNorthing: geo.utmNorthing,
+        lat: geo?.latitude ?? null,
+        lng: geo?.longitude ?? null,
+        altitude: geo?.altitude ?? null,
+        accuracy: geo?.accuracy ?? null,
+        utmZone: geo?.utmZone,
+        utmEasting: geo?.utmEasting,
+        utmNorthing: geo?.utmNorthing,
       },
     }
 
@@ -309,13 +297,13 @@ export function FieldCameraModal({
           station: stationName,
           matrix: selectedMatrix,
           coords: {
-            lat: geo.latitude,
-            lng: geo.longitude,
-            altitude: geo.altitude,
-            accuracy: geo.accuracy,
-            utmZone: geo.utmZone,
-            utmEasting: geo.utmEasting,
-            utmNorthing: geo.utmNorthing,
+            lat: geo?.latitude ?? null,
+            lng: geo?.longitude ?? null,
+            altitude: geo?.altitude ?? null,
+            accuracy: geo?.accuracy ?? null,
+            utmZone: geo?.utmZone,
+            utmEasting: geo?.utmEasting,
+            utmNorthing: geo?.utmNorthing,
           },
         }
 
@@ -342,12 +330,11 @@ export function FieldCameraModal({
       const newNote = {
         id: `note_photo_${Date.now()}`,
         title: `Evidencia Fotográfica: ${photo.station}`,
-        content: `Registro fotográfico técnico de campo en matriz ${photo.matrix}.\nCoordenadas: ${formatDms(
-          photo.coords.lat,
-          photo.coords.lng,
-        )} (${photo.coords.utmZone ?? "18S"} ${photo.coords.utmEasting ?? ""}, ${photo.coords.utmNorthing ?? ""}).\nAltitud: ${
-          photo.coords.altitude ?? "N/D"
-        } msnm.`,
+        content: `Registro fotográfico técnico de campo en matriz ${photo.matrix}.\n${
+          photo.coords.lat !== null && photo.coords.lng !== null
+            ? `Coordenadas: ${formatDms(photo.coords.lat, photo.coords.lng)} (${photo.coords.utmZone ?? ""} ${photo.coords.utmEasting ?? ""}, ${photo.coords.utmNorthing ?? ""}).\nAltitud: ${photo.coords.altitude ?? "N/D"} msnm.`
+            : "GPS no disponible"
+        }`,
         category: photo.matrix.toLowerCase().includes("agua")
           ? "agua"
           : photo.matrix.toLowerCase().includes("aire")
@@ -359,7 +346,10 @@ export function FieldCameraModal({
         location: {
           lat: photo.coords.lat,
           lng: photo.coords.lng,
-          address: `${photo.coords.lat.toFixed(5)}, ${photo.coords.lng.toFixed(5)}`,
+          address:
+            photo.coords.lat !== null && photo.coords.lng !== null
+              ? `${photo.coords.lat.toFixed(5)}, ${photo.coords.lng.toFixed(5)}`
+              : "GPS no disponible",
         },
         photoId: photo.id,
       }
@@ -522,14 +512,14 @@ export function FieldCameraModal({
               <div className="space-y-0.5">
                 <div className="flex items-center gap-1">
                   <MapPin className="h-3 w-3 text-[#00FFB2]" />
-                  <span>{formatDms(geo.latitude, geo.longitude)}</span>
+                  <span>{geo ? formatDms(geo.latitude, geo.longitude) : "SIN GPS"}</span>
                 </div>
-                <div>UTM: {geo.utmZone} {geo.utmEasting}E {geo.utmNorthing}N</div>
+                <div>{geo ? `UTM: ${geo.utmZone} ${geo.utmEasting}E ${geo.utmNorthing}N` : "GPS no disponible"}</div>
               </div>
 
               <div className="text-right space-y-0.5">
-                <div className="text-[#00FFB2]">PRECISIÓN: ±{geo.accuracy ?? 3.5}m</div>
-                <div className="text-[#A3B8B2]">{geo.altitude ? `${geo.altitude} msnm` : "GPS FIX"}</div>
+                <div className="text-[#00FFB2]">PRECISIÓN: {geo?.accuracy != null ? `±${geo.accuracy}m` : "N/D"}</div>
+                <div className="text-[#A3B8B2]">{geo?.altitude ? `${geo.altitude} msnm` : "GPS no disponible"}</div>
               </div>
             </div>
           </div>

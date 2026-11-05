@@ -36,18 +36,7 @@ export function QuickInsituModal({
   const [doVal, setDoVal] = useState<string>("5.8") // mg/L
   const [turb, setTurb] = useState<string>("12") // NTU
 
-  const [geo, setGeo] = useState<GeoLocationState>({
-    latitude: -12.046374,
-    longitude: -77.042793,
-    altitude: 154,
-    accuracy: 3.8,
-    heading: null,
-    speed: null,
-    timestamp: Date.now(),
-    utmZone: "18S",
-    utmEasting: 277618,
-    utmNorthing: 8667491,
-  })
+  const [geo, setGeo] = useState<GeoLocationState | null>(null)
 
   useEffect(() => {
     if (currentStation) setStation(currentStation)
@@ -74,7 +63,7 @@ export function QuickInsituModal({
             utmNorthing: utm.northing,
           })
         },
-        () => {},
+        () => setGeo(null),
         { enableHighAccuracy: true, timeout: 8000 },
       )
     }
@@ -124,13 +113,15 @@ export function QuickInsituModal({
     const newNote = {
       id: `insitu_${Date.now()}`,
       title: `Medición In-Situ: ${station} [${overallCompliant ? "CUMPLE" : "ALERTA"}]`,
-      content: summaryText,
+      content: `${summaryText}\n${geo ? "GPS registrado" : "GPS no disponible"}`, 
       category: "agua",
       date: new Date().toISOString(),
       location: {
-        lat: geo.latitude,
-        lng: geo.longitude,
-        address: `${formatDms(geo.latitude, geo.longitude)} (${geo.utmZone ?? "18S"} ${geo.utmEasting ?? ""}, ${geo.utmNorthing ?? ""})`,
+        lat: geo?.latitude ?? null,
+        lng: geo?.longitude ?? null,
+        address: geo
+          ? `${formatDms(geo.latitude, geo.longitude)} (${geo.utmZone ?? ""} ${geo.utmEasting ?? ""}, ${geo.utmNorthing ?? ""})`
+          : "GPS no disponible",
       },
     }
 
@@ -178,10 +169,10 @@ export function QuickInsituModal({
           <div className="flex items-center gap-1.5 truncate">
             <MapPin className="h-3.5 w-3.5 text-[#00FFB2] shrink-0" />
             <span className="truncate">
-              {geo.utmZone ? `UTM: ${geo.utmZone} ${geo.utmEasting}E ${geo.utmNorthing}N` : `${geo.latitude.toFixed(5)}, ${geo.longitude.toFixed(5)}`}
+              {geo ? `UTM: ${geo.utmZone} ${geo.utmEasting}E ${geo.utmNorthing}N` : "SIN GPS"}
             </span>
           </div>
-          <span className="text-[#00FFB2] shrink-0 ml-2">PREC: ±{geo.accuracy ?? 3.5}m</span>
+          <span className="text-[#00FFB2] shrink-0 ml-2">PREC: {geo?.accuracy != null ? `±${geo.accuracy}m` : "N/D"}</span>
         </div>
 
         <form onSubmit={handleSave} className="space-y-3">

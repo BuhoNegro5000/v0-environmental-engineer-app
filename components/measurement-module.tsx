@@ -14,6 +14,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useI18n } from "@/lib/i18n-context"
 import { regulationsByCountry } from "@/lib/regulations-data"
 
+interface MeasurementModuleProps {
+  initialSubTab?: string
+}
+
 interface AirQualityData {
   pm25: number
   pm10: number
@@ -29,7 +33,7 @@ interface WaterQualityData {
   conductivity: number
 }
 
-export function MeasurementModule() {
+export function MeasurementModule({ initialSubTab }: MeasurementModuleProps) {
   const { country, language } = useI18n()
   const [airQuality, setAirQuality] = useState<AirQualityData | null>(null)
   const [waterQuality, setWaterQuality] = useState<WaterQualityData | null>(null)
@@ -151,7 +155,7 @@ export function MeasurementModule() {
         </p>
       </div>
 
-      <Tabs defaultValue="air" className="w-full">
+      <Tabs defaultValue={initialSubTab === "field" ? "field" : "air"} className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-auto gap-2 p-2">
           <TabsTrigger value="air" className="min-h-[44px] text-sm">
             <Wind className="h-4 w-4 mr-1" />
